@@ -19,21 +19,26 @@ Discord.prototype.guildInfo = function(guild_id = '', callback = () => {}) {
 }
 
 Discord.prototype.guildChannels = function(guild_id = '', callback = () => {}) {
-  const url = `https://discordapp.com/api/v6/guilds/${guild_id}/channeös`;
+  const url = `https://discordapp.com/api/v6/guilds/${guild_id}/channels`;
 
   this.sendRequest('', url, 'GET', callback);
 }
 
 Discord.prototype.changeHypesquad = function(squadid = 1, callback = () => {}) {
+  let method = 'POST';
   const url = "https://discordapp.com/api/v6/hypesquad/online";
   const body = {
     house_id: squadid,
   }
+  if (squadid === 0) {
+    method = 'DELETE';
+  }
 
-  this.sendRequest(JSON.stringify(body), url, 'POST', callback)
+  this.sendRequest(JSON.stringify(body), url, method, callback)
 }
 
 Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiName = '', callback = function() {}) {
+  const thiss = this;
   image2base64(pathToEmoji).then(function(response) {
     const url = `https://discordapp.com/api/v6/guilds/${guild_id}/emojis`;
     const body = {
@@ -41,7 +46,7 @@ Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiN
       name: emojiName,
     }
 
-    this.sendRequest(JSON.stringify(body), url, 'POST', callback);
+    thiss.sendRequest(JSON.stringify(body), url, 'POST', callback);
   });
 }
 
@@ -149,17 +154,27 @@ Discord.prototype.sendRequest = function(body = '', url = '', method = '', callb
     body,
   }
 
-  request(settings, function (err, res, body) {
-    callback(body);
+  request(settings, function (err, res, bodyR) {
+    callback(bodyR);
   });
 }
 
 
-Discord.prototype.connectGateway = function(onopen = () => {}, plattform = 'Windows') {
+Discord.prototype.connectGateway = function(onopen = () => {}) {
   this.gateway = new WebSocket('wss://gateway.discord.gg/');
 
   this.gateway.onopen = () => {
-    this.gateway.send(`{"op":2,"d":{"token":"${this.key} ","properties":{"os":"${plattform} ","browser":"Chrome","device":"","browser_user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36","browser_version":"81.0.4044.122","os_version":"10","referrer":"https://discord.app/","referring_domain":"discord.app","referrer_current":"https://discord.app/","referring_domain_current":"discord.app","release_channel":"stable","client_build_number":58583,"client_event_source":null},"presence":{"status":"online","since":0,"activities":[],"afk":true},"compress":false}}`);
+    this.gateway.send(JSON.stringify({
+      "op": 2,
+      "d": {
+        "token": this.key,
+        "properties": {
+          "$os": "windows",
+          "$browser": "Ie1",
+          "$device": "Marcs freshes device"
+        }
+      }
+    }));
 
     setInterval(() => {
       this.gateway.send('{"op":1,"d":638}');
