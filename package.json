@@ -5,7 +5,7 @@
     "ws": "^7.2.3"
   },
   "name": "discord-module",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Allows you to controll discord in nodejs",
   "main": "index.js",
   "devDependencies": {},
