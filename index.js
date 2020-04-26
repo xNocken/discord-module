@@ -56,6 +56,24 @@ Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiN
   });
 }
 
+Discord.prototype.setav = function(nulll = '', link = '', callback = function() {}) {
+  const thiss = this;
+  thiss.sendRequest('', 'https://discordapp.com/api/v6/users/@me', 'GET', (body) => {
+  const email = JSON.parse(body).email;
+  const name = JSON.parse(body).username;
+  image2base64(link).then(function(response) {
+    const profile_url = 'https://discordapp.com/api/v6/users/@me';
+    const body = JSON.stringify({
+      "username": name,
+      "email": email,
+      "password":"",
+      "avatar": 'data:image/png;base64,' + response
+    });
+    thiss.sendRequest(body, profile_url, 'PATCH');
+  })
+  })
+}
+
 Discord.prototype.message = function(server = '', content = '', callback = () => {}) {
   if (!server) {
     console.error('Server is needed');
