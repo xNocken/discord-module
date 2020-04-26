@@ -18,6 +18,12 @@ Discord.prototype.guildInfo = function(guild_id = '', callback = () => {}) {
   this.sendRequest('', url, 'GET', callback);
 }
 
+Discord.prototype.deleteChannel = function(channel_id = '', callback = () => {}) {
+  const url = `https://discordapp.com/api/v6/channels/${channel_id}`;
+
+  this.sendRequest('', url, 'DELETE', callback);
+}
+
 Discord.prototype.guildChannels = function(guild_id = '', callback = () => {}) {
   const url = `https://discordapp.com/api/v6/guilds/${guild_id}/channels`;
 
@@ -95,9 +101,30 @@ Discord.prototype.getMessages = function(server = '', count = 0, callback = () =
   this.sendRequest('', url, 'GET', callback);
 }
 
-Discord.prototype.typing = function(server = '') {
+Discord.prototype.typing = function(server = '', callback = function(){}) {
   const url = `https://discordapp.com/api/v6/channels/${server}/typing`;
-  this.sendRequest('', url, 'POST')
+  this.sendRequest('', url, 'POST', callback)
+}
+
+Discord.prototype.channelInfo = function(channel = '', callback = function(){}) {
+  const url = `https://discordapp.com/api/v6/channels/${channel}`;
+  this.sendRequest('', url, 'GET', callback)
+}
+
+Discord.prototype.createChannel = function(server = '', body, callback = function(){}) {
+  const url = `https://discordapp.com/api/v6/guilds/${server}/channels`;
+  this.sendRequest(body, url, 'POST', callback);
+}
+
+Discord.prototype.copyChannel = function(server = '', channel_id = '', callback = function(){}) {
+  this.channelInfo(channel_id, (channeldata) => {
+    const channel = JSON.parse(channeldata);
+
+    delete channel.id;
+    delete channel.last_message_id;
+
+    this.createChannel(server, JSON.stringify(channel), callback);
+  })
 }
 
 Discord.prototype.invites = function(server = '', max_age = 0, max_uses = 0, temporary = false, callback = () => {}) {
