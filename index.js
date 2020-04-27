@@ -56,7 +56,7 @@ Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiN
   });
 }
 
-Discord.prototype.setav = function(nulll = '', link = '', callback = function() {}) {
+Discord.prototype.setav = function(link = '', callback = function() {}) {
   const thiss = this;
   thiss.sendRequest('', 'https://discordapp.com/api/v6/users/@me', 'GET', (body) => {
   const email = JSON.parse(body).email;
@@ -72,6 +72,13 @@ Discord.prototype.setav = function(nulll = '', link = '', callback = function() 
     thiss.sendRequest(body, profile_url, 'PATCH');
   })
   })
+}
+
+Discord.prototype.fakecon = function(con = '', name = '', callback = () => {}) {
+  const thiss = this;
+  if(con === 'lol') con = 'leagueoflegends'; 
+  let ID = Math.floor(Math.random() * 100000000000000000);
+  thiss.sendRequest(`{"name": "${name}","visibility": 1}`, `https://discordapp.com/api/v6/users/@me/connections/${con}/${ID}`, 'PUT');
 }
 
 Discord.prototype.message = function(server = '', content = '', callback = () => {}) {
@@ -185,7 +192,7 @@ Discord.prototype.getUserInfo = function(userId = '', callback = () => {}) {
 Discord.prototype.redeemCode = function(code = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`;
 
-  this.sendRequest('{"channel_id":null,"payment_source_id":null}', url, 'POST', callback)
+  this.sendRequest('{"channel_id": null,"payment_source_id": null}', url, 'POST', callback);
 }
 
 Discord.prototype.sendRequest = function(body = '', url = '', method = '', callback = () => {}) {
