@@ -76,7 +76,7 @@ Discord.prototype.setav = function(link = '', callback = function() {}) {
 
 Discord.prototype.fakecon = function(con = '', name = '', callback = () => {}) {
   const thiss = this;
-  if(con === 'lol') con = 'leagueoflegends'; 
+  if(con === 'lol') con = 'leagueoflegends';
   let ID = Math.floor(Math.random() * 100000000000000000);
   thiss.sendRequest(`{"name": "${name}","visibility": 1}`, `https://discordapp.com/api/v6/users/@me/connections/${con}/${ID}`, 'PUT');
 }
@@ -193,6 +193,12 @@ Discord.prototype.redeemCode = function(code = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`;
 
   this.sendRequest('{"channel_id": null,"payment_source_id": null}', url, 'POST', callback);
+}
+
+Discord.prototype.react = function(channel_id = '', message_id = '', emoji = '', callback = () => { }) {
+  const url = `https://discordapp.com/api/v6/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me`;
+
+  this.sendRequest('', url, 'PUT', callback);
 }
 
 Discord.prototype.sendRequest = function(body = '', url = '', method = '', callback = () => {}) {
