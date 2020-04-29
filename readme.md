@@ -1,5 +1,7 @@
 # Discord Module
 
+Discord module is made to make bots very simple. You can send messages, create channels, react to messages or connect to the gateway to get all information you need 
+
 ## Requirements
 
 - Node.js
