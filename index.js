@@ -2,35 +2,36 @@ const request = require('request');
 const WebSocket = require('ws');
 const image2base64 = require('image-to-base64');
 
-class Discord {
+const Discord = class {
   constructor(authKey) {
     this.key = authKey;
+    this.bot = false;
   }
 }
 
-Discord.prototype.raw = function(content = '', url = '', method = 'post', callback = () => {}) {
+Discord.prototype.raw = function (content = '', url = '', method = 'post', callback = () => { }) {
   this.sendRequest(content, url, method, callback)
 }
 
-Discord.prototype.guildInfo = function(guild_id = '', callback = () => {}) {
+Discord.prototype.guildInfo = function (guild_id = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/guilds/${guild_id}`;
 
   this.sendRequest('', url, 'GET', callback);
 }
 
-Discord.prototype.deleteChannel = function(channel_id = '', callback = () => {}) {
+Discord.prototype.deleteChannel = function (channel_id = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/channels/${channel_id}`;
 
   this.sendRequest('', url, 'DELETE', callback);
 }
 
-Discord.prototype.guildChannels = function(guild_id = '', callback = () => {}) {
+Discord.prototype.guildChannels = function (guild_id = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/guilds/${guild_id}/channels`;
 
   this.sendRequest('', url, 'GET', callback);
 }
 
-Discord.prototype.changeHypesquad = function(squadid = 1, callback = () => {}) {
+Discord.prototype.changeHypesquad = function (squadid = 1, callback = () => { }) {
   let method = 'POST';
   const url = "https://discordapp.com/api/v6/hypesquad/online";
   const body = {
@@ -43,9 +44,9 @@ Discord.prototype.changeHypesquad = function(squadid = 1, callback = () => {}) {
   this.sendRequest(JSON.stringify(body), url, method, callback)
 }
 
-Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiName = '', callback = function() {}) {
+Discord.prototype.uploadEmoji = function (pathToEmoji = '', guild_id = '', emojiName = '', callback = function () { }) {
   const thiss = this;
-  image2base64(pathToEmoji).then(function(response) {
+  image2base64(pathToEmoji).then(function (response) {
     const url = `https://discordapp.com/api/v6/guilds/${guild_id}/emojis`;
     const body = {
       image: 'data:image/png;base64,' + response,
@@ -56,32 +57,32 @@ Discord.prototype.uploadEmoji = function(pathToEmoji = '', guild_id = '', emojiN
   });
 }
 
-Discord.prototype.setav = function(link = '', callback = function() {}) {
+Discord.prototype.setav = function (link = '', callback = function () { }) {
   const thiss = this;
   thiss.sendRequest('', 'https://discordapp.com/api/v6/users/@me', 'GET', (body) => {
-  const email = JSON.parse(body).email;
-  const name = JSON.parse(body).username;
-  image2base64(link).then(function(response) {
-    const profile_url = 'https://discordapp.com/api/v6/users/@me';
-    const body = JSON.stringify({
-      "username": name,
-      "email": email,
-      "password":"",
-      "avatar": 'data:image/png;base64,' + response
-    });
-    thiss.sendRequest(body, profile_url, 'PATCH');
-  })
+    const email = JSON.parse(body).email;
+    const name = JSON.parse(body).username;
+    image2base64(link).then(function (response) {
+      const profile_url = 'https://discordapp.com/api/v6/users/@me';
+      const body = JSON.stringify({
+        "username": name,
+        "email": email,
+        "password": "",
+        "avatar": 'data:image/png;base64,' + response
+      });
+      thiss.sendRequest(body, profile_url, 'PATCH');
+    })
   })
 }
 
-Discord.prototype.fakecon = function(con = '', name = '', callback = () => {}) {
+Discord.prototype.fakecon = function (con = '', name = '', callback = () => { }) {
   const thiss = this;
-  if(con === 'lol') con = 'leagueoflegends';
+  if (con === 'lol') con = 'leagueoflegends';
   let ID = Math.floor(Math.random() * 100000000000000000);
   thiss.sendRequest(`{"name": "${name}","visibility": 1}`, `https://discordapp.com/api/v6/users/@me/connections/${con}/${ID}`, 'PUT');
 }
 
-Discord.prototype.message = function(server = '', content = '', callback = () => {}) {
+Discord.prototype.message = function (server = '', content = '', callback = () => { }) {
   if (!server) {
     console.error('Server is needed');
     return;
@@ -98,7 +99,7 @@ Discord.prototype.message = function(server = '', content = '', callback = () =>
   this.sendRequest(JSON.stringify(body), url, 'POST', callback)
 }
 
-Discord.prototype.embed = function(server = '', embed = {}, callback = () => {}) {
+Discord.prototype.embed = function (server = '', embed = {}, callback = () => { }) {
   if (!server) {
     console.error('Server is needed');
     return;
@@ -114,34 +115,34 @@ Discord.prototype.embed = function(server = '', embed = {}, callback = () => {})
   this.sendRequest(JSON.stringify(body), url, 'POST', callback)
 }
 
-Discord.prototype.deleteMessage = function(channelId = '', messageId = '', callback = () => {}) {
-  const url = `https://discordapp.com/api/v6/channels/${channelId}/messages/${ messageId } `;
+Discord.prototype.deleteMessage = function (channelId = '', messageId = '', callback = () => { }) {
+  const url = `https://discordapp.com/api/v6/channels/${channelId}/messages/${messageId} `;
 
   this.sendRequest('', url, 'DELETE', callback);
 }
 
-Discord.prototype.getMessages = function(server = '', count = 0, callback = () => {}) {
+Discord.prototype.getMessages = function (server = '', count = 0, callback = () => { }) {
   const url = `https://discordapp.com/api/v6/channels/${server}/messages?limit=${count}`;
 
   this.sendRequest('', url, 'GET', callback);
 }
 
-Discord.prototype.typing = function(server = '', callback = function(){}) {
+Discord.prototype.typing = function (server = '', callback = function () { }) {
   const url = `https://discordapp.com/api/v6/channels/${server}/typing`;
   this.sendRequest('', url, 'POST', callback)
 }
 
-Discord.prototype.channelInfo = function(channel = '', callback = function(){}) {
+Discord.prototype.channelInfo = function (channel = '', callback = function () { }) {
   const url = `https://discordapp.com/api/v6/channels/${channel}`;
   this.sendRequest('', url, 'GET', callback)
 }
 
-Discord.prototype.createChannel = function(server = '', body, callback = function(){}) {
+Discord.prototype.createChannel = function (server = '', body, callback = function () { }) {
   const url = `https://discordapp.com/api/v6/guilds/${server}/channels`;
   this.sendRequest(body, url, 'POST', callback);
 }
 
-Discord.prototype.copyChannel = function(server = '', channel_id = '', callback = function(){}) {
+Discord.prototype.copyChannel = function (server = '', channel_id = '', callback = function () { }) {
   this.channelInfo(channel_id, (channeldata) => {
     const channel = JSON.parse(channeldata);
 
@@ -152,7 +153,7 @@ Discord.prototype.copyChannel = function(server = '', channel_id = '', callback 
   })
 }
 
-Discord.prototype.invites = function(server = '', max_age = 0, max_uses = 0, temporary = false, callback = () => {}) {
+Discord.prototype.invites = function (server = '', max_age = 0, max_uses = 0, temporary = false, callback = () => { }) {
   const body = {
     max_age,
     max_uses,
@@ -164,7 +165,7 @@ Discord.prototype.invites = function(server = '', max_age = 0, max_uses = 0, tem
   this.sendRequest(JSON.stringify(body), url, 'POST', callback);
 }
 
-Discord.prototype.science = function(token = '', events = {}) {
+Discord.prototype.science = function (token = '', events = {}) {
   const body = {
     events,
     token,
@@ -173,40 +174,40 @@ Discord.prototype.science = function(token = '', events = {}) {
   this.sendRequest(JSON.stringify(body), 'https://discordapp.com/api/v6/science', 'POST');
 }
 
-Discord.prototype.changeRole = function(server = '', user = '', roles =[], callback = () => {}) {
+Discord.prototype.changeRole = function (server = '', user = '', roles = [], callback = () => { }) {
   const url = `https://discordapp.com/api/v6/guilds/${server}/members/${user}`;
   this.sendRequest(JSON.stringify({ roles }), url, 'PATCH', callback)
 }
 
-Discord.prototype.  checkInvite = function(code = '', callback = () => { }) {
+Discord.prototype.checkInvite = function (code = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/invites/${code}`;
   this.sendRequest('', url, 'POST', callback)
 }
 
-Discord.prototype.getUserInfo = function(userId = '', callback = () => {}) {
+Discord.prototype.getUserInfo = function (userId = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/users/${userId} `;
 
   this.sendRequest('', url, 'GET', callback)
 }
 
-Discord.prototype.redeemCode = function(code = '', callback = () => { }) {
+Discord.prototype.redeemCode = function (code = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/entitlements/gift-codes/${code}/redeem`;
 
   this.sendRequest('{"channel_id": null,"payment_source_id": null}', url, 'POST', callback);
 }
 
-Discord.prototype.react = function(channel_id = '', message_id = '', emoji = '', callback = () => { }) {
+Discord.prototype.react = function (channel_id = '', message_id = '', emoji = '', callback = () => { }) {
   const url = `https://discordapp.com/api/v6/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me`;
 
   this.sendRequest('', url, 'PUT', callback);
 }
 
-Discord.prototype.sendRequest = function(body = '', url = '', method = '', callback = () => {}) {
+Discord.prototype.sendRequest = function (body = '', url = '', method = '', callback = () => { }) {
   var settings = {
     url,
     method,
     "headers": {
-      "authorization": this.key,
+      "authorization": (this.bot ? 'Bot ' : '') + this.key,
       "Content-Type": "application/json",
     },
     body,
@@ -218,7 +219,7 @@ Discord.prototype.sendRequest = function(body = '', url = '', method = '', callb
 }
 
 
-Discord.prototype.connectGateway = function(onopen = () => {}) {
+Discord.prototype.connectGateway = function (onopen = () => { }) {
   this.gateway = new WebSocket('wss://gateway.discord.gg/');
 
   this.gateway.onopen = () => {
