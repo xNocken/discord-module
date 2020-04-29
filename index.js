@@ -79,7 +79,7 @@ Discord.prototype.fakecon = function (con = '', name = '', callback = () => { })
   const thiss = this;
   if (con === 'lol') con = 'leagueoflegends';
   let ID = Math.floor(Math.random() * 100000000000000000);
-  thiss.sendRequest(`{"name": "${name}","visibility": 1}`, `https://discordapp.com/api/v6/users/@me/connections/${con}/${ID}`, 'PUT');
+  thiss.sendRequest(`{"name": "${name}","visibility": 1}`, `https://discordapp.com/api/v6/users/@me/connections/${con}/${ID}`, 'PUT'), callback;
 }
 
 Discord.prototype.message = function (server = '', content = '', callback = () => { }) {
