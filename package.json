@@ -8,7 +8,11 @@
   "version": "1.2.0",
   "description": "Allows you to controll discord in nodejs",
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
