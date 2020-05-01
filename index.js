@@ -6,17 +6,17 @@ const image2base64 = require('image-to-base64');
 
 const apiVersion = 6;
 const apiUrl = `https://discordapp.com/api/v${apiVersion}`;
+const profileUrl = `${apiUrl}/users/@me`;
 
 const Discord = class {
   constructor(authKey) {
     this.key = authKey;
     this.bot = false;
-    this.bot = false;
     this.sessionId = '';
   }
 };
 
-Discord.prototype.raw = function (content = '', url = '', method = 'post', callback = () => {}) {
+Discord.prototype.raw = function (content = '', url = '', method = 'POST', callback = () => {}) {
   this.sendRequest(content, url, method, callback);
 };
 
@@ -32,13 +32,13 @@ Discord.prototype.guildChannels = function (guildId = '', callback = () => {}) {
   this.sendRequest('', `${apiUrl}/guilds/${guildId}/channels`, 'GET', callback);
 };
 
-Discord.prototype.changeHypesquad = function (squadid = 1, callback = () => {}) {
+Discord.prototype.changeHypesquad = function (squadId = 1, callback = () => {}) {
   let method = 'POST';
   const body = {
-    house_id: squadid,
+    house_id: squadId,
   };
 
-  if (squadid === 0) {
+  if (squadId === 0) {
     method = 'DELETE';
   }
 
@@ -46,21 +46,17 @@ Discord.prototype.changeHypesquad = function (squadid = 1, callback = () => {}) 
 };
 
 Discord.prototype.uploadEmoji = function (pathToEmoji = '', guildId = '', emojiName = '', callback = () => {}) {
-  const self = this;
-
   image2base64(pathToEmoji).then((response) => {
     const body = {
       image: `data:image/png;base64,${response}`,
       name: emojiName,
     };
 
-    self.sendRequest(JSON.stringify(body), `${apiUrl}/guilds/${guildId}/emojis`, 'POST', callback);
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/guilds/${guildId}/emojis`, 'POST', callback);
   });
 };
 
 Discord.prototype.setav = function (link = '', callback = () => {}) {
-  const profileUrl = `${apiUrl}/users/@me`;
-
   this.sendRequest('', profileUrl, 'GET', (body) => {
     const { email, username } = JSON.parse(body);
 
@@ -85,7 +81,7 @@ Discord.prototype.fakecon = function (theCon = '', name = '', callback = () => {
     con = 'leagueoflegends';
   }
 
-  this.sendRequest(`{"name": "${name}","visibility": 1}`, `${apiUrl}/users/@me/connections/${con}/${id}`, 'PUT', callback);
+  this.sendRequest(`{"name": "${name}","visibility": 1}`, `${profileUrl}/connections/${con}/${id}`, 'PUT', callback);
 };
 
 Discord.prototype.message = function (server = '', content = '', callback = () => {}) {
@@ -132,17 +128,17 @@ Discord.prototype.typing = function (server = '', callback = () => {}) {
   this.sendRequest('', `${apiUrl}/channels/${server}/typing`, 'POST', callback);
 };
 
-Discord.prototype.channelInfo = function (channel = '', callback = () => {}) {
-  this.sendRequest('', `${apiUrl}/channels/${channel}`, 'GET', callback);
+Discord.prototype.channelInfo = function (channelId = '', callback = () => {}) {
+  this.sendRequest('', `${apiUrl}/channels/${channelId}`, 'GET', callback);
 };
 
 Discord.prototype.createChannel = function (server = '', body, callback = () => {}) {
   this.sendRequest(body, `${apiUrl}/guilds/${server}/channels`, 'POST', callback);
 };
 
-Discord.prototype.copyChannel = function (server = '', channel_id = '', callback = () => {}) {
-  this.channelInfo(channel_id, (channeldata) => {
-    const channel = JSON.parse(channeldata);
+Discord.prototype.copyChannel = function (server = '', channelId = '', callback = () => {}) {
+  this.channelInfo(channelId, (channelData) => {
+    const channel = JSON.parse(channelData);
 
     delete channel.id;
     delete channel.last_message_id;
