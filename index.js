@@ -11,6 +11,8 @@ const Discord = class {
   constructor(authKey) {
     this.key = authKey;
     this.bot = false;
+    this.bot = false;
+    this.sessionId = '';
   }
 };
 
@@ -57,10 +59,9 @@ Discord.prototype.uploadEmoji = function (pathToEmoji = '', guildId = '', emojiN
 };
 
 Discord.prototype.setav = function (link = '', callback = () => {}) {
-  const self = this;
   const profileUrl = `${apiUrl}/users/@me`;
 
-  self.sendRequest('', profileUrl, 'GET', (body) => {
+  this.sendRequest('', profileUrl, 'GET', (body) => {
     const { email, username } = JSON.parse(body);
 
     image2base64(link).then((response) => {
@@ -71,7 +72,7 @@ Discord.prototype.setav = function (link = '', callback = () => {}) {
         avatar: `data:image/png;base64,${response}`,
       });
 
-      self.sendRequest(requestBody, profileUrl, 'PATCH', callback);
+      this.sendRequest(requestBody, profileUrl, 'PATCH', callback);
     });
   });
 };
@@ -203,21 +204,32 @@ Discord.prototype.sendRequest = function (body = '', url = '', method = '', call
   request(settings, (err, res, bodyR) => callback(bodyR));
 };
 
-Discord.prototype.connectGateway = function (onopen = () => {}) {
+Discord.prototype.connectGateway = function (onopen = () => {}, reconnect = true) {
   this.gateway = new WebSocket('wss://gateway.discord.gg/');
 
   this.gateway.onopen = () => {
-    this.gateway.send(JSON.stringify({
-      op: 2,
-      d: {
-        token: this.key,
-        properties: {
-          $os: 'windows',
-          $browser: 'Ie1',
-          $device: 'Marcs freshes device',
+    if (reconnect) {
+      this.gateway.send(JSON.stringify({
+        op: 6,
+        d: {
+          token: this.key,
+          session_id: this.sessionId,
+          seq: this.seq,
         },
-      },
-    }));
+      }));
+    } else {
+      this.gateway.send(JSON.stringify({
+        op: 2,
+        d: {
+          token: this.key,
+          properties: {
+            $os: 'windows',
+            $browser: 'Ie1',
+            $device: 'Marcs freshes device',
+          },
+        },
+      }));
+    }
 
     setInterval(() => {
       this.gateway.send('{"op":1,"d":638}');

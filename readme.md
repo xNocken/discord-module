@@ -154,7 +154,7 @@ discord.raw('Body (json)', 'Url (full url)', 'Method', callback);
 
 You can open a gateway connection to discord with
 ```javascript
-const gateway = discord.connectGateway(callback (triggers on open));
+const gateway = discord.connectGateway(callback (triggers on open), <bool>reconnect);
 ```
 
 To recieve the messages from Discord just add
@@ -173,19 +173,32 @@ gateway.send('json');
 
 You can find Many functions for the gateway [here](https://discordapp.com/developers/docs/topics/gateway)
 
+if your Gateway disconnects you need can use
+```javascript
+const onmessage = gateway.onmessage;
+gateway = discord.connectGateway(() => {}, true);
+gateway.onmassage = onmassage;
+```
+
+You need to check for a message with ```response.op === 9``` if you get one use
+```javascript
+const onmessage = gateway.onmessage;
+gateway.close();
+gateway = discord.connectGateway();
+gateway.onmassage = onmassage;
+```
+
 I recomend adding this in the onmessage function 
 
 ```javascript
 gateway.onmessage = (e) => {
   const response = JSON.stringify(e.data);
 
-  discord.bot = response.d.user.bot;
+  if (response.t === 'READY') {
+    discord.bot = response.d.user.bot;
+  }
 };
 ```
-
-## Contributing
-
-if you have to use the raw function then i would be happy if you would add it or at least show it in an issue
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
