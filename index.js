@@ -1,5 +1,3 @@
-/* eslint-disable func-names */
-/* eslint-disable no-console */
 const request = require('request');
 const WebSocket = require('ws');
 const image2base64 = require('image-to-base64');
@@ -13,6 +11,7 @@ const Discord = class {
     this.key = authKey;
     this.bot = false;
     this.sessionId = '';
+    this.seq = 0;
   }
 };
 
@@ -200,7 +199,7 @@ Discord.prototype.sendRequest = function (body = '', url = '', method = '', call
   request(settings, (err, res, bodyR) => callback(bodyR));
 };
 
-Discord.prototype.connectGateway = function (onopen = () => {}, reconnect = true) {
+Discord.prototype.connectGateway = function (onopen = () => {}, reconnect = false) {
   this.gateway = new WebSocket('wss://gateway.discord.gg/');
 
   this.gateway.onopen = () => {
@@ -227,7 +226,7 @@ Discord.prototype.connectGateway = function (onopen = () => {}, reconnect = true
       }));
     }
 
-    setInterval(() => {
+    this.heartbeatIntevall = setInterval(() => {
       this.gateway.send('{"op":1,"d":638}');
     }, 30000);
     onopen();
