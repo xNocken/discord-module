@@ -186,17 +186,22 @@ Discord.prototype.react = function (channelId = '', messageId = '', emoji = '', 
 };
 
 Discord.prototype.sendRequest = function (body = '', url = '', method = '', callback = () => {}) {
+  const headers = {
+    authorization: (this.bot ? 'Bot ' : '') + this.key,
+  };
+
+  if (body) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const settings = {
     url,
     method,
-    headers: {
-      authorization: (this.bot ? 'Bot ' : '') + this.key,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body,
   };
 
-  request(settings, (err, res, bodyR) => callback(bodyR));
+  request(settings, (err, res, bodyR) => callback(bodyR, err));
 };
 
 Discord.prototype.connectGateway = function (onopen = () => {}, reconnect = false) {
