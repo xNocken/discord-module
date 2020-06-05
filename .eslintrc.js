@@ -17,5 +17,7 @@ module.exports = {
   rules: {
     'func-names': 0,
     'no-console': 0,
+    'no-bitwise': 0,
+    'class-methods-use-this': 0,
   },
 };
