@@ -122,4 +122,6 @@ class Permissions {
   }
 }
 
+Permissions.allPermissions = 2147483647;
+
 module.exports = Permissions;

@@ -1,4 +1,4 @@
-const settings = require('../src/settings');
+const globals = require('../src/globals');
 const Permissions = require('./Permissions');
 
 class Role {
@@ -10,13 +10,12 @@ class Role {
     this.mentionable = role.mentionable;
     this.position = role.position;
     this.permissions = new Permissions(role.permissions);
-    console.log(role.permissions, this.permissions.getPermissionNumber());
     this.name = role.name;
     this.guildId = guildId;
   }
 
   update() {
-    const { discord } = settings;
+    const { discord } = globals;
     const permissions = this.permissions.getPermissionNumber();
 
     discord.updateRole(this.guildId, this.id, {
@@ -25,7 +24,9 @@ class Role {
       mentionable: this.mentionable,
       name: this.name,
       permissions,
-    }, console.log);
+    });
+
+    // TODO: Success validation
   }
 
   addPermissions(permArray) {

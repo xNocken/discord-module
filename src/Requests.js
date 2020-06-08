@@ -1,6 +1,6 @@
 const image2base64 = require('image-to-base64');
 const request = require('request');
-const settings = require('./settings');
+const globals = require('./globals');
 
 const apiVersion = 6;
 const apiUrl = `https://discordapp.com/api/v${apiVersion}`;
@@ -8,9 +8,9 @@ const profileUrl = `${apiUrl}/users/@me`;
 
 class Requests {
   sendRequest(body = '', url = '', method = '', callback = () => { }) {
-    console.log(callback);
     const headers = {
-      authorization: (settings.user.bot ? 'Bot ' : '') + this.key,
+      authorization: (globals.user.bot ? 'Bot ' : '') + this.key,
+      'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
     };
 
     if (body) {
@@ -29,6 +29,10 @@ class Requests {
 
   raw(content = '', url = '', method = 'POST', callback = () => { }) {
     this.sendRequest(content, url, method, callback);
+  }
+
+  updateChannel(channelId, data, callback) {
+    this.sendRequest(JSON.stringify(data), `${apiUrl}/channels/${channelId}`, 'PATCH', callback);
   }
 
   guildInfo(guildId = '', callback = () => { }) {

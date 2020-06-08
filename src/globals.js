@@ -1,8 +1,8 @@
 module.exports = {
-  discord: '',
+  discord: {},
   users: {},
   roles: {},
   channels: {},
   guilds: {},
-  user: '',
+  user: {},
 };

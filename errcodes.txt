@@ -1,0 +1,4 @@
+1: Invalid length
+2: Invalid type
+3: Not supported
+4: Invalid snowflake

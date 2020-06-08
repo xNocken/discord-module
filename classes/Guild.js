@@ -1,4 +1,4 @@
-const settings = require('../src/settings');
+const globals = require('../src/globals');
 const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
@@ -34,29 +34,70 @@ class Guild {
     this.roles = [];
     this.channels = [];
 
-    guild.channels.forEach((channel) => {
-      settings.roles[channel.id] = new Channel(channel, this.id);
-      this.channels[channel.id] = settings.channels[channel.id];
-    });
-
     guild.roles.forEach((role) => {
-      settings.roles[role.id] = new Role(role, this.id);
-      this.roles[role.id] = settings.roles[role.id];
+      globals.roles[role.id] = new Role(role, this.id);
+      this.roles[role.id] = globals.roles[role.id];
+
+      if (role.name === '@everyone') {
+        this.everyoneRole = globals.roles[role.id];
+      }
     });
 
     guild.members.forEach((member) => {
-      if (!settings.users[member.user.id]) {
+      if (!globals.users[member.user.id]) {
         const user = new User(member.user);
 
-        settings.users[member.user.id] = user;
+        globals.users[member.user.id] = user;
       }
 
-      this.members.push({
+      this.members[member.user.id] = {
         ...member,
-        user: settings.users[member.user.id],
+        user: globals.users[member.user.id],
         roles: member.roles.map((role) => this.roles[role]),
-      });
+      };
     });
+
+    guild.channels.forEach((channel) => {
+      globals.channels[channel.id] = new Channel(channel, this.id);
+      this.channels[channel.id] = globals.channels[channel.id];
+    });
+  }
+
+
+  userHasRole(userId, roleId) {
+    let hasRole = false;
+
+    if (!this.members[userId]) {
+      throw ReferenceError('User not found on this server');
+    }
+
+    this.members[userId].roles.forEach((role) => {
+      if (role.id === roleId) {
+        hasRole = true;
+      }
+    });
+
+    return hasRole;
+  }
+
+  userIsAdmin(userId) {
+    let isAdmin = false;
+
+    if (!this.members[userId]) {
+      throw ReferenceError('User not found on this server');
+    }
+
+    this.members[userId].roles.forEach((role) => {
+      if (role.permissions.ADMINISTRATOR) {
+        isAdmin = true;
+      }
+    });
+
+    return isAdmin;
+  }
+
+  userIsOwner(userId) {
+    return this.owner_id === userId;
   }
 }
 

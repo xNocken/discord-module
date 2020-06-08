@@ -1,12 +1,12 @@
 const WebSocket = require('ws');
 const Requests = require('./src/Requests');
-const settings = require('./src/settings');
+const globals = require('./src/globals');
 const handler = require('./src/handler');
 
 class Discord extends Requests {
   constructor(authKey) {
     super();
-    settings.discord = this;
+    globals.discord = this;
     this.key = authKey;
     this.bot = false;
     this.sessionId = '';
@@ -36,7 +36,7 @@ class Discord extends Requests {
   }
 
   getGuilds() {
-    return settings.guilds;
+    return globals.guilds;
   }
 }
 
