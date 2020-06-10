@@ -59,10 +59,26 @@ class Channel {
     return new Permissions(perms);
   }
 
-  getMessages(count = 50, callback = () => { }) {
-    const { discord } = globals;
+  sendMessage(message, callback = () => {}) {
+    const { requests } = globals;
 
-    discord.getMessages(this.id, count, (messages) => {
+    if (message.length < 1 || message.length > 2000) {
+      callback(1);
+      return;
+    }
+
+    if (this.type === Channel.types.GUILD_VOICE || this.type === Channel.types.GUILD_STORE) {
+      callback(2);
+      return;
+    }
+
+    requests.sendMessage(this.id, message, callback);
+  }
+
+  getMessages(count = 50, callback = () => { }) {
+    const { requests } = globals;
+
+    requests.getMessages(this.id, count, (messages) => {
       if (messages) {
         callback(messages.map((message) => new Message(message)));
       }
@@ -70,7 +86,7 @@ class Channel {
   }
 
   setName(name = '', callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (!name || name.length < 2 || name.length > 100) {
       callback(1);
@@ -80,19 +96,19 @@ class Channel {
 
     this.name = name;
 
-    discord.updateChannel(this.id, { name }, callback);
+    requests.updateChannel(this.id, { name }, callback);
   }
 
   setPosition(position = '', callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     this.position = position;
 
-    discord.updateChannel(this.id, { position }, callback);
+    requests.updateChannel(this.id, { position }, callback);
   }
 
   setType(type, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (type !== Channel.types.GUILD_TEXT && type !== Channel.types.GUILD_NEWS) {
       callback(2);
@@ -106,11 +122,11 @@ class Channel {
 
     this.type = type;
 
-    discord.updateChannel(this.id, { type }, callback);
+    requests.updateChannel(this.id, { type }, callback);
   }
 
   setTopic(topic, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (topic.length < 0 || topic.length > 1024) {
       callback(1);
@@ -119,11 +135,11 @@ class Channel {
 
     this.topic = topic;
 
-    discord.updateChannel(this.id, { topic }, callback);
+    requests.updateChannel(this.id, { topic }, callback);
   }
 
   setNsfw(nsfw, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (Number(nsfw) !== 0 && Number(nsfw) !== 1) {
       callback(1);
@@ -132,11 +148,11 @@ class Channel {
 
     this.nsfw = nsfw;
 
-    discord.updateChannel(this.id, { nsfw }, callback);
+    requests.updateChannel(this.id, { nsfw }, callback);
   }
 
   setRateLimitperUser(rateLimitperUser, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (rateLimitperUser < 0 || rateLimitperUser > 21600) {
       callback(1);
@@ -145,11 +161,11 @@ class Channel {
 
     this.rate_limit_per_user = rateLimitperUser;
 
-    discord.updateChannel(this.id, { rate_limit_per_user: rateLimitperUser }, callback);
+    requests.updateChannel(this.id, { rate_limit_per_user: rateLimitperUser }, callback);
   }
 
   setBitrate(bitrate, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (this.type !== Channel.types.GUILD_VOICE) {
       callback(2);
@@ -163,11 +179,11 @@ class Channel {
 
     this.bitrate = bitrate;
 
-    discord.updateChannel(this.id, { bitrate }, callback);
+    requests.updateChannel(this.id, { bitrate }, callback);
   }
 
   setUserLimit(UserLimit, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (UserLimit < 0 || UserLimit > 99) {
       callback(1);
@@ -176,19 +192,19 @@ class Channel {
 
     this.user_limit = UserLimit;
 
-    discord.updateChannel(this.id, { user_limit: UserLimit }, callback);
+    requests.updateChannel(this.id, { user_limit: UserLimit }, callback);
   }
 
   setpermissionOverwrites(permissionOverwrites, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     this.permission_overwrites = permissionOverwrites;
 
-    discord.updateChannel(this.id, { permission_overwrites: permissionOverwrites }, callback);
+    requests.updateChannel(this.id, { permission_overwrites: permissionOverwrites }, callback);
   }
 
   setParentId(parentId, callback = () => {}) {
-    const { discord } = globals;
+    const { requests } = globals;
 
     if (parentId.toString().length !== 18) {
       callback(4);
@@ -197,7 +213,7 @@ class Channel {
 
     this.parent_id = parentId;
 
-    discord.updateChannel(this.id, { parent_id: parentId }, callback);
+    requests.updateChannel(this.id, { parent_id: parentId }, callback);
   }
 }
 

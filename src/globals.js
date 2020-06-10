@@ -5,4 +5,5 @@ module.exports = {
   channels: {},
   guilds: {},
   user: {},
+  events: {},
 };

@@ -3,10 +3,10 @@ const Requests = require('./src/Requests');
 const globals = require('./src/globals');
 const handler = require('./src/handler');
 
-class Discord extends Requests {
+class Discord {
   constructor(authKey) {
-    super();
     globals.discord = this;
+    globals.requests = new Requests(authKey);
     this.key = authKey;
     this.bot = false;
     this.sessionId = '';
@@ -21,8 +21,8 @@ class Discord extends Requests {
           token: this.key,
           properties: {
             $os: 'windows',
-            $browser: 'Ie1',
-            $device: 'Marcs freshes device',
+            $browser: 'discord-module',
+            $device: 'discord-module',
           },
         },
       }));
@@ -37,6 +37,16 @@ class Discord extends Requests {
 
   getGuilds() {
     return globals.guilds;
+  }
+
+  on(event, callback) {
+    if (!event || !callback) {
+      return false;
+    }
+
+    globals.events[event] = callback;
+
+    return true;
   }
 }
 

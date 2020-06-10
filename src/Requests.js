@@ -7,6 +7,10 @@ const apiUrl = `https://discordapp.com/api/v${apiVersion}`;
 const profileUrl = `${apiUrl}/users/@me`;
 
 class Requests {
+  constructor(key) {
+    this.key = key;
+  }
+
   sendRequest(body = '', url = '', method = '', callback = () => { }) {
     const headers = {
       authorization: (globals.user.bot ? 'Bot ' : '') + this.key,
@@ -99,8 +103,8 @@ class Requests {
     this.sendRequest(`{"name": "${name}","visibility": 1}`, `${profileUrl}/connections/${con}/${id}`, 'PUT', callback);
   }
 
-  message(server = '', content = '', callback = () => { }) {
-    if (!server) {
+  sendMessage(channelId = '', content = '', callback = () => { }) {
+    if (!channelId) {
       console.error('Server is needed');
 
       return;
@@ -112,7 +116,7 @@ class Requests {
       tts: 'false',
     };
 
-    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${server}/messages`, 'POST', callback);
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
   }
 
   embed(server = '', embed = {}, callback = () => { }) {

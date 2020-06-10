@@ -25,9 +25,9 @@ module.exports = (e) => {
     globals.guilds[response.d.guild_id].roles[response.d.role.id] = new Role(response.d.role);
   }
 
-  if (response.t === 'MESSAGE_CREATE') {
-    if (discord.onmessage) {
-      discord.onmessage(response.d);
-    }
+  if (globals.events[response.t]) {
+    globals.events[response.t](response.d);
+  } else if (globals.events[response.op]) {
+    globals.events[response.op](response.op);
   }
 };
