@@ -61,6 +61,10 @@ class Guild {
       globals.channels[channel.id] = new Channel(channel, this.id);
       this.channels[channel.id] = globals.channels[channel.id];
     });
+
+    guild.presences.forEach((user) => {
+      globals.users[user.user.id].setPresence(user);
+    });
   }
 
 

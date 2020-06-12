@@ -8,7 +8,6 @@ class Discord {
     globals.discord = this;
     globals.requests = new Requests(authKey);
     this.key = authKey;
-    this.bot = false;
     this.sessionId = '';
     this.seq = 0;
     this.onmessage = null;
@@ -32,11 +31,25 @@ class Discord {
       this.gateway.send('{"op":1,"d":638}');
     }, 30000);
 
+    this.gateway.onclose = console.log;
+
     this.gateway.onmessage = handler;
   }
 
   getGuilds() {
     return globals.guilds;
+  }
+
+  getUsers() {
+    return globals.users;
+  }
+
+  getGlobals() {
+    return globals;
+  }
+
+  getUser() {
+    return globals.user;
   }
 
   on(event, callback) {

@@ -21,6 +21,7 @@ class Channel {
     this.type = channel.type;
     this.permission_overwrites = [];
     this.guildId = guildId;
+    this.messageQueue = [];
 
     channel.permission_overwrites.forEach((permissionOverwrite) => {
       this.permission_overwrites[permissionOverwrite.id] = {
@@ -59,9 +60,38 @@ class Channel {
     return new Permissions(perms);
   }
 
-  sendMessage(message, callback = () => {}) {
+  async drainQueue() {
+    if (this.isDraining) {
+      return;
+    }
+
+    this.isDraining = true;
     const { requests } = globals;
 
+    const send = async (message) => {
+      console.log(message);
+      await requests.sendMessage(this.id, message.message, (response) => {
+        if (response.retry_after) {
+          this.messageQueue.unshift(message);
+        } else {
+          message.callback();
+        }
+
+        if (!this.messageQueue.length) {
+          this.isDraining = false;
+          return;
+        }
+
+        setTimeout(() => {
+          send(this.messageQueue.splice(0, 1)[0]);
+        }, response.retry_after || 0);
+      });
+    };
+
+    send(this.messageQueue.splice(0, 1)[0]);
+  }
+
+  sendMessage(message, callback = () => {}) {
     if (message.length < 1 || message.length > 2000) {
       callback(1);
       return;
@@ -72,7 +102,8 @@ class Channel {
       return;
     }
 
-    requests.sendMessage(this.id, message, callback);
+    this.messageQueue.push({ message, callback });
+    this.drainQueue();
   }
 
   getMessages(count = 50, callback = () => { }) {
