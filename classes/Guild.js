@@ -116,6 +116,11 @@ class Guild {
   createInvite(options, callback) {
     discord.requests.createInvite(this.id, options, callback);
   }
+
+  banUser(user, callback, reason = '', deleteMessagesDays = 0) {
+    const id = user.id || user;
+    globals.requests.banUser(this.id, id, deleteMessagesDays, reason, callback);
+  }
 }
 
 module.exports = Guild;

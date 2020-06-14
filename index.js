@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const Requests = require('./src/Requests');
 const globals = require('./src/globals');
 const handler = require('./src/handler');
+const User = require('./classes/User');
 
 class Discord {
   constructor(authKey) {
@@ -70,5 +71,7 @@ class Discord {
     return true;
   }
 }
+
+Discord.User = User;
 
 module.exports = Discord;

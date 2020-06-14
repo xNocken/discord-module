@@ -1,4 +1,5 @@
 const Flags = require('./Flags');
+const globals = require('../src/globals');
 
 class User {
   constructor(user) {
@@ -15,6 +16,16 @@ class User {
     this.status = presence.client_status;
     this.game = presence.game;
     this.activities = presence.activities;
+  }
+
+  static getUserById(id, callback) {
+    globals.requests.getUserInfo(id, (user) => {
+      if (user.id) {
+        callback(new User(user));
+      } else {
+        callback(false);
+      }
+    });
   }
 }
 
