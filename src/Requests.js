@@ -12,10 +12,6 @@ class Requests {
   }
 
   sendRequest(body = '', url = '', method = '', callback = () => {}) {
-    if (!body.match(/^{}$/g)) {
-      throw new TypeError('Invalid body provided');
-    }
-
     if (!url || !url.match(/https?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi)) {
       throw new TypeError(`${!url ? 'No' : 'Invalid'} URL provided`);
     }
