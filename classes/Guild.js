@@ -3,6 +3,8 @@ const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
 
+const { discord } = globals;
+
 class Guild {
   constructor(guild) {
     this.name = guild.name;
@@ -67,6 +69,13 @@ class Guild {
     });
   }
 
+  getChannelById(id) {
+    return this.channels[id] || false;
+  }
+
+  getUserById(id) {
+    return this.members[id] || false;
+  }
 
   userHasRole(userId, roleId) {
     let hasRole = false;
@@ -102,6 +111,10 @@ class Guild {
 
   userIsOwner(userId) {
     return this.owner_id === userId;
+  }
+
+  createInvite(options, callback) {
+    discord.requests.createInvite(this.id, options, callback);
   }
 }
 

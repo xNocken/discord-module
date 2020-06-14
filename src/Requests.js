@@ -12,10 +12,14 @@ class Requests {
   }
 
   sendRequest(body = '', url = '', method = '', callback = () => { }) {
-    const headers = {
-      authorization: (globals.user.bot ? 'Bot ' : '') + this.key,
-      'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
-    };
+    let headers = {};
+
+    if (globals.user) {
+      headers = {
+        authorization: (globals.user.bot ? 'Bot ' : '') + this.key,
+        'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+      };
+    }
 
     if (body) {
       headers['Content-Type'] = 'application/json';
@@ -28,11 +32,15 @@ class Requests {
       body,
     };
 
-    request(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR), err));
+    request(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR || 'null'), err));
   }
 
   raw(content = '', url = '', method = 'POST', callback = () => { }) {
     this.sendRequest(content, url, method, callback);
+  }
+
+  getWSUrl(callback = () => {}) {
+    this.sendRequest('', `${apiUrl}/gateway`, 'GET', callback);
   }
 
   updateChannel(channelId, data, callback) {
@@ -166,11 +174,12 @@ class Requests {
     });
   }
 
-  invites(server = '', max_age = 0, max_uses = 0, temporary = false, callback = () => { }) {
+  createInvite(server = '', options = {}, callback = () => { }) {
     const body = {
-      max_age,
-      max_uses,
-      temporary,
+      max_age: 0,
+      max_uses: 0,
+      temporary: false,
+      ...options,
     };
 
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${server}/invites`, 'POST', callback);

@@ -6,4 +6,6 @@ module.exports = {
   guilds: {},
   user: {},
   events: {},
+  privateChannels: {},
+  requests: {},
 };

@@ -51,7 +51,7 @@ class Channel {
 
     Object.values(this.permission_overwrites).forEach((overWrite) => {
       if ((overWrite.type === 'role' && parentServer.userHasRole(user.user.id, overWrite.id.id))
-       || (overWrite.type === 'member' && overWrite.id.id === user.user.id)) {
+        || (overWrite.type === 'member' && overWrite.id.id === user.user.id)) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
       }
@@ -66,11 +66,8 @@ class Channel {
     }
 
     this.isDraining = true;
-    const { requests } = globals;
-
     const send = async (message) => {
-      console.log(message);
-      await requests.sendMessage(this.id, message.message, (response) => {
+      await globals.requests.sendMessage(this.id, message.message, (response) => {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
@@ -91,7 +88,7 @@ class Channel {
     send(this.messageQueue.splice(0, 1)[0]);
   }
 
-  sendMessage(message, callback = () => {}) {
+  sendMessage(message, callback = () => { }) {
     if (message.length < 1 || message.length > 2000) {
       callback(1);
       return;
@@ -107,18 +104,14 @@ class Channel {
   }
 
   getMessages(count = 50, callback = () => { }) {
-    const { requests } = globals;
-
-    requests.getMessages(this.id, count, (messages) => {
+    globals.requests.getMessages(this.id, count, (messages) => {
       if (messages) {
         callback(messages.map((message) => new Message(message)));
       }
     });
   }
 
-  setName(name = '', callback = () => {}) {
-    const { requests } = globals;
-
+  setName(name = '', callback = () => { }) {
     if (!name || name.length < 2 || name.length > 100) {
       callback(1);
 
@@ -127,20 +120,16 @@ class Channel {
 
     this.name = name;
 
-    requests.updateChannel(this.id, { name }, callback);
+    globals.requests.updateChannel(this.id, { name }, callback);
   }
 
-  setPosition(position = '', callback = () => {}) {
-    const { requests } = globals;
-
+  setPosition(position = '', callback = () => { }) {
     this.position = position;
 
-    requests.updateChannel(this.id, { position }, callback);
+    globals.requests.updateChannel(this.id, { position }, callback);
   }
 
-  setType(type, callback = () => {}) {
-    const { requests } = globals;
-
+  setType(type, callback = () => { }) {
     if (type !== Channel.types.GUILD_TEXT && type !== Channel.types.GUILD_NEWS) {
       callback(2);
       return;
@@ -153,12 +142,10 @@ class Channel {
 
     this.type = type;
 
-    requests.updateChannel(this.id, { type }, callback);
+    globals.requests.updateChannel(this.id, { type }, callback);
   }
 
-  setTopic(topic, callback = () => {}) {
-    const { requests } = globals;
-
+  setTopic(topic, callback = () => { }) {
     if (topic.length < 0 || topic.length > 1024) {
       callback(1);
       return;
@@ -166,12 +153,10 @@ class Channel {
 
     this.topic = topic;
 
-    requests.updateChannel(this.id, { topic }, callback);
+    globals.requests.updateChannel(this.id, { topic }, callback);
   }
 
-  setNsfw(nsfw, callback = () => {}) {
-    const { requests } = globals;
-
+  setNsfw(nsfw, callback = () => { }) {
     if (Number(nsfw) !== 0 && Number(nsfw) !== 1) {
       callback(1);
       return;
@@ -179,12 +164,10 @@ class Channel {
 
     this.nsfw = nsfw;
 
-    requests.updateChannel(this.id, { nsfw }, callback);
+    globals.requests.updateChannel(this.id, { nsfw }, callback);
   }
 
-  setRateLimitperUser(rateLimitperUser, callback = () => {}) {
-    const { requests } = globals;
-
+  setRateLimitperUser(rateLimitperUser, callback = () => { }) {
     if (rateLimitperUser < 0 || rateLimitperUser > 21600) {
       callback(1);
       return;
@@ -192,12 +175,10 @@ class Channel {
 
     this.rate_limit_per_user = rateLimitperUser;
 
-    requests.updateChannel(this.id, { rate_limit_per_user: rateLimitperUser }, callback);
+    globals.requests.updateChannel(this.id, { rate_limit_per_user: rateLimitperUser }, callback);
   }
 
-  setBitrate(bitrate, callback = () => {}) {
-    const { requests } = globals;
-
+  setBitrate(bitrate, callback = () => { }) {
     if (this.type !== Channel.types.GUILD_VOICE) {
       callback(2);
       return;
@@ -210,12 +191,10 @@ class Channel {
 
     this.bitrate = bitrate;
 
-    requests.updateChannel(this.id, { bitrate }, callback);
+    globals.requests.updateChannel(this.id, { bitrate }, callback);
   }
 
-  setUserLimit(UserLimit, callback = () => {}) {
-    const { requests } = globals;
-
+  setUserLimit(UserLimit, callback = () => { }) {
     if (UserLimit < 0 || UserLimit > 99) {
       callback(1);
       return;
@@ -223,20 +202,18 @@ class Channel {
 
     this.user_limit = UserLimit;
 
-    requests.updateChannel(this.id, { user_limit: UserLimit }, callback);
+    globals.requests.updateChannel(this.id, { user_limit: UserLimit }, callback);
   }
 
-  setpermissionOverwrites(permissionOverwrites, callback = () => {}) {
-    const { requests } = globals;
-
+  setpermissionOverwrites(permissionOverwrites, callback = () => { }) {
     this.permission_overwrites = permissionOverwrites;
 
-    requests.updateChannel(this.id, { permission_overwrites: permissionOverwrites }, callback);
+    globals.requests.updateChannel(this.id, {
+      permission_overwrites: permissionOverwrites,
+    }, callback);
   }
 
-  setParentId(parentId, callback = () => {}) {
-    const { requests } = globals;
-
+  setParentId(parentId, callback = () => { }) {
     if (parentId.toString().length !== 18) {
       callback(4);
       return;
@@ -244,7 +221,15 @@ class Channel {
 
     this.parent_id = parentId;
 
-    requests.updateChannel(this.id, { parent_id: parentId }, callback);
+    globals.requests.updateChannel(this.id, { parent_id: parentId }, callback);
+  }
+
+  delete(callback = () => { }) {
+    globals.requests.deleteChannel(this.id, callback);
+  }
+
+  createInvite(options, callback) {
+    globals.requests.createInvite(this.guildId, options, callback);
   }
 }
 

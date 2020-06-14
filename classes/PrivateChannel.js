@@ -1,0 +1,93 @@
+const globals = require('../src/globals');
+const Message = require('./Message');
+const User = require('./User');
+
+class PrivateChannel {
+  constructor(channel) {
+    this.id = channel.id;
+    this.last_message_id = channel.last_message_id;
+    this.name = channel.name;
+    this.recipients = {};
+    this.messageQueue = [];
+
+    channel.recipients.forEach((user) => {
+      if (!globals.users[user.id]) {
+        globals.users[user.id] = new User(user);
+      }
+
+      this.recipients[user.id] = globals.users[user.id];
+    });
+  }
+
+  async drainQueue() {
+    if (this.isDraining) {
+      return;
+    }
+
+    this.isDraining = true;
+    const send = async (message) => {
+      await globals.requests.sendMessage(this.id, message.message, (response) => {
+        if (response.retry_after) {
+          this.messageQueue.unshift(message);
+        } else {
+          message.callback(response);
+        }
+
+        if (!this.messageQueue.length) {
+          this.isDraining = false;
+          return;
+        }
+
+        setTimeout(() => {
+          send(this.messageQueue.splice(0, 1)[0]);
+        }, response.retry_after || 0);
+      });
+    };
+
+    send(this.messageQueue.splice(0, 1)[0]);
+  }
+
+  sendMessage(message, callback = () => {}) {
+    if (message.length < 1 || message.length > 2000) {
+      callback(1);
+      return;
+    }
+
+    if (this.type === PrivateChannel.types.GUILD_VOICE
+      || this.type === PrivateChannel.types.GUILD_STORE) {
+      callback(2);
+      return;
+    }
+
+    this.messageQueue.push({ message, callback });
+    this.drainQueue();
+  }
+
+  getMessages(count = 50, callback = () => { }) {
+    globals.requests.getMessages(this.id, count, (messages) => {
+      if (messages) {
+        callback(messages.map((message) => new Message(message)));
+      }
+    });
+  }
+
+  delete(callback = () => {}) {
+    globals.requests.deleteChannel(this.id, callback);
+  }
+
+  createInvite(options, callback) {
+    globals.requests.createInvite(this.guildId, options, callback);
+  }
+}
+
+PrivateChannel.types = {
+  GUILD_TEXT: 0,
+  DM: 1,
+  GUILD_VOICE: 2,
+  GROUP_DM: 3,
+  GUILD_CATEGORY: 4,
+  GUILD_NEWS: 5,
+  GUILD_STORE: 6,
+};
+
+module.exports = PrivateChannel;
