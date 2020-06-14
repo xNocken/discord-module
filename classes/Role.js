@@ -18,7 +18,7 @@ class Role {
     const { discord } = globals;
     const permissions = this.permissions.getPermissionNumber();
 
-    discord.updateRole(this.guildId, this.id, {
+    discord.requests.updateRole(this.guildId, this.id, {
       color: this.color,
       hoist: this.hoist,
       mentionable: this.mentionable,
