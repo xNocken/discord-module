@@ -1,4 +1,4 @@
-class MassageFlags {
+class MessageFlags {
   constructor(flag) {
     this.CROSSPOSTED = (flag >> 0) & 1;
     this.IS_CROSSPOST = (flag >> 1) & 1;
@@ -8,4 +8,4 @@ class MassageFlags {
   }
 }
 
-module.exports = MassageFlags;
+module.exports = MessageFlags;
