@@ -22,9 +22,9 @@ class Discord {
           d: {
             token: this.key,
             properties: {
-              $os: 'windows',
-              $browser: 'discord-module',
-              $device: 'discord-module',
+              $os: process.platform,
+              $browser: process.argv[2].match(/(?<=-ua)(.+)/i).toString() || 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+              $device: 'PC',
             },
           },
         }));
@@ -33,7 +33,7 @@ class Discord {
       this.heartbeatInteval = setInterval(() => {
         this.gateway.send('{"op":1,"d":638}');
       }, 30000);
-
+D
       this.gateway.onclose = console.log;
 
       this.gateway.onmessage = handler;

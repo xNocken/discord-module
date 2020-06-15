@@ -2,6 +2,9 @@ const image2base64 = require('image-to-base64');
 const request = require('request');
 const globals = require('./globals');
 
+const URL_REGEX = /https?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi;
+const METHOD_REGEX = /(GET|PATCH|POST|PUT|DELETE)/gi;
+
 const apiVersion = 6;
 const apiUrl = `https://discordapp.com/api/v${apiVersion}`;
 const profileUrl = `${apiUrl}/users/@me`;
@@ -12,12 +15,8 @@ class Requests {
   }
 
   sendRequest(body = '', url = '', method = '', callback = () => {}) {
-    if (!url || !url.match(/https?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi)) {
-      throw new TypeError(`${!url ? 'No' : 'Invalid'} URL provided`);
-    }
-
-    if (!method || !method.match(/(GET|PATCH|POST|PUT|DELETE)/gi)) {
-      throw new TypeError(`${!method ? 'No' : 'Invalid'} method provided`);
+    if (!url || !method || !method.match(METHOD_REGEX) || !url.match(URL_REGEX)) {
+      throw new TypeError('Invalid/No URL or method provided');
     }
 
     let headers = {};
@@ -43,57 +42,58 @@ class Requests {
     request(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR || null), err));
   }
 
-  raw(content = '', url = '', method = 'POST', callback = () => {}) {
-    this.sendRequest(content, url, method, callback);
-  }
-
   getWSUrl(callback = () => {}) {
     this.sendRequest('', `${apiUrl}/gateway`, 'GET', callback);
   }
 
   updateChannel(channelId, data, callback) {
-    if (!channelId || !data) {
-      throw new TypeError('No channelId or data provided');
-    }
-
-    if (typeof channelId !== 'number') {
-      throw new TypeError('ChannelId must be a number');
-    }
-
-    if (typeof data !== 'object') {
-      throw new TypeError('Data must be an object');
+    if (!channelId || !data || typeof channelId !== 'string' || typeof data !== 'object') {
+      throw new TypeError('Invalid/No channelId or data provided');
     }
 
     this.sendRequest(JSON.stringify(data), `${apiUrl}/channels/${channelId}`, 'PATCH', callback);
   }
 
   guildInfo(guildId = '', callback = () => {}) {
+    if (!guildId || typeof guildId !== 'string') {
+      throw new TypeError('Invalid/No guildId provided');
+    }
+
     this.sendRequest('', `${apiUrl}/guilds/${guildId}`, 'GET', callback);
   }
 
   deleteChannel(channelId = '', callback = () => {}) {
+    if (!channelId || typeof channelId !== 'string') {
+      throw new TypeError('Invalid/No channelId provided');
+    }
+
     this.sendRequest('', `${apiUrl}/channels/${channelId}`, 'DELETE', callback);
   }
 
   guildChannels(guildId = '', callback = () => {}) {
+    if (!guildId || typeof guildId !== 'string') {
+      throw new TypeError('Invalid/No guildId provided');
+    }
+
     this.sendRequest('', `${apiUrl}/guilds/${guildId}/channels`, 'GET', callback);
   }
 
-  changeHypesquad(squadId = 1, callback = () => {}) {
+  changeHypesquad(squadId = 0, callback = () => {}) {
     let method = 'POST';
+
+    if (squadId === 0 || squadId === null) {
+      method = 'DELETE';
+    }
+
     const body = {
       house_id: squadId,
     };
 
-    if (squadId === 0) {
-      method = 'DELETE';
-    }
-
     this.sendRequest(JSON.stringify(body), `${apiUrl}/hypesquad/online`, method, callback);
   }
 
-  uploadEmoji(pathToEmoji = '', guildId = '', emojiName = '', callback = () => {}) {
-    image2base64(pathToEmoji).then((response) => {
+  uploadEmoji(emojiPath = '', guildId = '', emojiName = '', callback = () => {}) {
+    image2base64(emojiPath).then((response) => {
       const body = {
         image: `data:image/png;base64,${response}`,
         name: emojiName,
@@ -103,14 +103,14 @@ class Requests {
     });
   }
 
-  setav(link = '', callback = () => {}) {
+  changeAvatar(url = '', callback = () => {}) {
     this.sendRequest('', profileUrl, 'GET', (body) => {
       const {
         email,
         username,
       } = JSON.parse(body);
 
-      image2base64(link).then((response) => {
+      image2base64(url).then((response) => {
         const requestBody = JSON.stringify({
           email,
           username,
@@ -123,27 +123,22 @@ class Requests {
     });
   }
 
-  sendMessage(channelId = '', content = '', callback = () => {}) {
-    if (!channelId) {
-      console.error('Server is needed');
-
-      return;
+  sendMessage(channelId = '', content = '', tts = false, callback = () => {}) {
+    if (!channelId || !content || typeof channelId !== 'string' || typeof content !== 'string') {
+      throw new TypeError('Invalid/No channelId or content provided');
     }
 
     const body = {
       content,
-      nonce: String(Math.random()),
-      tts: 'false',
+      tts,
     };
 
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
   }
 
-  embed(server = '', embed = {}, callback = () => {}) {
-    if (!server) {
-      console.error('Server is needed');
-
-      return;
+  embed(guildId = '', embed = {}, callback = () => {}) {
+    if (!guildId || !embed || typeof guildId !== 'string' || typeof embed !== 'object') {
+      throw new TypeError('Invalid/No guildId or embed provided');
     }
 
     const body = {
@@ -152,41 +147,61 @@ class Requests {
       embed,
     };
 
-    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${(server)}/messages`, 'POST', callback);
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${guildId}/messages`, 'POST', callback);
   }
 
   deleteMessage(channelId = '', messageId = '', callback = () => {}) {
+    if (!channelId || !messageId || typeof channelId !== 'string' || typeof messageId !== 'string') {
+      throw new TypeError('Invalid/No channelId or messageId provided');
+    }
+
     this.sendRequest('', `${apiUrl}/channels/${channelId}/messages/${messageId} `, 'DELETE', callback);
   }
 
-  getMessages(server = '', count = 0, callback = () => {}) {
-    this.sendRequest('', `${apiUrl}/channels/${server}/messages?limit=${count}`, 'GET', callback);
+  getMessages(guildId = '', count = 0, callback = () => {}) {
+    if (!guildId || !count || typeof guildId !== 'string' || typeof count !== 'string') {
+      throw new TypeError('Invalid/No guildId or count provided');
+    }
+
+    this.sendRequest('', `${apiUrl}/channels/${guildId}/messages?limit=${count}`, 'GET', callback);
   }
 
-  typing(server = '', callback = () => {}) {
-    this.sendRequest('', `${apiUrl}/channels/${server}/typing`, 'POST', callback);
+  typing(guildId = '', callback = () => {}) {
+    if (!guildId || typeof guildId !== 'string') {
+      throw new TypeError('Invalid/No guildId provided');
+    }
+
+    this.sendRequest('', `${apiUrl}/channels/${guildId}/typing`, 'POST', callback);
   }
 
   channelInfo(channelId = '', callback = () => {}) {
     this.sendRequest('', `${apiUrl}/channels/${channelId}`, 'GET', callback);
   }
 
-  createChannel(server = '', body, callback = () => {}) {
-    this.sendRequest(body, `${apiUrl}/guilds/${server}/channels`, 'POST', callback);
+  createChannel(guildId = '', body, callback = () => {}) {
+    if (!guildId || typeof guildId !== 'string') {
+      throw new TypeError('Invalid/No guildId provided');
+    }
+
+    this.sendRequest(body, `${apiUrl}/guilds/${guildId}/channels`, 'POST', callback);
   }
 
-  copyChannel(server = '', channelId = '', callback = () => {}) {
+  copyChannel(guildId = '', channelId = '', callback = () => {}) {
+    if (!guildId || !channelId || typeof guildId !== 'string' || typeof channelId !== 'string') {
+      throw new TypeError('Invalid/No guildId or channelId provided');
+    }
+
     this.channelInfo(channelId, (channelData) => {
       const channel = JSON.parse(channelData);
 
       delete channel.id;
       delete channel.last_message_id;
 
-      this.createChannel(server, JSON.stringify(channel), callback);
+      this.createChannel(guildId, JSON.stringify(channel), callback);
     });
   }
 
-  createInvite(server = '', options = {}, callback = () => { }) {
+  createInvite(guildId = '', options = {}, callback = () => {}) {
     const body = {
       max_age: 0,
       max_uses: 0,
@@ -194,17 +209,17 @@ class Requests {
       ...options,
     };
 
-    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${server}/invites`, 'POST', callback);
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${guildId}/invites`, 'POST', callback);
   }
 
-  changeRole(server = '', user = '', roles = [], callback = () => {}) {
+  changeRole(guildId = '', user = '', roles = [], callback = () => {}) {
     this.sendRequest(JSON.stringify({
       roles,
-    }), `${apiUrl}/guilds/${server}/members/${user}`, 'PATCH', callback);
+    }), `${apiUrl}/guilds/${guildId}/members/${user}`, 'PATCH', callback);
   }
 
   checkInvite(code = '', callback = () => {}) {
-    this.sendRequest('', `${apiUrl}/invites/${code}`, 'POST', callback);
+    this.sendRequest('', `${apiUrl}/invites/${code}`, 'GET', callback);
   }
 
   getUserInfo(userId = '', callback = () => {}) {
