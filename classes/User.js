@@ -27,6 +27,13 @@ class User {
       }
     });
   }
+
+  getAccountCreateDate() {
+    const binaryId = this.id.toString(2);
+    const rightLengthId = '0'.repeat(64 - binaryId.length) + binaryId;
+
+    return new Date(parseInt(rightLengthId.substring(0, 42), 2) + globals.discordEpochTimestamp);
+  }
 }
 
 module.exports = User;

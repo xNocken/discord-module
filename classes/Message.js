@@ -23,7 +23,7 @@ class Message {
   constructor(message) {
     this.author = globals.users[message.author.id];
     this.content = message.content;
-    this.channel = globals.channels[message.channel_id];
+    this.channel = globals.channels[message.channel_id] || globals.privateChannels[message.channel_id];
     this.attachments = message.attachments;
     this.edited = message.edited_timestamp ? new Date(message.edited_timestamp) : null;
     this.time = new Date(message.timestamp);
@@ -39,6 +39,10 @@ class Message {
     this.application = message.application;
     this.activity = message.activity;
     this.pinned = message.pinned;
+  }
+
+  react(emoji, callback = () => {}) {
+    globals.requests.react(this.channel.id, this.id, emoji, callback);
   }
 }
 

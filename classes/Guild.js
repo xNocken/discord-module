@@ -3,8 +3,6 @@ const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
 
-const { discord } = globals;
-
 class Guild {
   constructor(guild) {
     this.name = guild.name;
@@ -113,13 +111,14 @@ class Guild {
     return this.owner_id === userId;
   }
 
-  createInvite(options, callback) {
-    discord.requests.createInvite(this.id, options, callback);
-  }
-
   banUser(user, callback, reason = '', deleteMessagesDays = 0) {
     const id = user.id || user;
     globals.requests.banUser(this.id, id, deleteMessagesDays, reason, callback);
+  }
+
+  kickUser(user, callback) {
+    const id = user.id || user;
+    globals.requests.kickUser(this.id, id, callback);
   }
 }
 

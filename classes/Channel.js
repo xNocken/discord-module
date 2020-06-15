@@ -67,7 +67,7 @@ class Channel {
 
     this.isDraining = true;
     const send = async (message) => {
-      await globals.requests.sendMessage(this.id, message.message, (response) => {
+      await globals.requests.sendMessage(this.id, message.message, message.tts, (response) => {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
@@ -88,7 +88,12 @@ class Channel {
     send(this.messageQueue.splice(0, 1)[0]);
   }
 
-  sendMessage(message, callback = () => { }) {
+  createInvite(options, callback) {
+    console.log(this.id);
+    globals.requests.createInvite(this.id, options, callback);
+  }
+
+  sendMessage(message, tts = false, callback = () => { }) {
     if (message.length < 1 || message.length > 2000) {
       callback(1);
       return;
@@ -99,7 +104,7 @@ class Channel {
       return;
     }
 
-    this.messageQueue.push({ message, callback });
+    this.messageQueue.push({ message, callback, tts });
     this.drainQueue();
   }
 
@@ -226,10 +231,6 @@ class Channel {
 
   delete(callback = () => { }) {
     globals.requests.deleteChannel(this.id, callback);
-  }
-
-  createInvite(options, callback) {
-    globals.requests.createInvite(this.guildId, options, callback);
   }
 }
 

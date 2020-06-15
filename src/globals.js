@@ -8,4 +8,5 @@ module.exports = {
   events: {},
   privateChannels: {},
   requests: {},
+  discordEpochTimestamp: 1420070400000,
 };

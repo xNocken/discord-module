@@ -33,7 +33,7 @@ class Requests {
     }
 
     const requestSettings = {
-      url,
+      url: encodeURI(url),
       method,
       headers,
       body,
@@ -48,6 +48,10 @@ class Requests {
 
   banUser(guildId, userId, deleteMessageDays, reason, callback = () => {}) {
     this.sendRequest(JSON.stringify({ 'delete-message-days': deleteMessageDays, reason }), `${apiUrl}/guilds/${guildId}/bans/${userId}`, 'PUT', callback);
+  }
+
+  kickUser(guildId, userId, callback = () => {}) {
+    this.sendRequest('', `${apiUrl}/guilds/${guildId}/members/${userId}`, 'DELETE', callback);
   }
 
   updateChannel(channelId, data, callback) {
@@ -205,7 +209,7 @@ class Requests {
     });
   }
 
-  createInvite(guildId = '', options = {}, callback = () => {}) {
+  createInvite(channel = '', options = {}, callback = () => {}) {
     const body = {
       max_age: 0,
       max_uses: 0,
@@ -213,7 +217,7 @@ class Requests {
       ...options,
     };
 
-    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${guildId}/invites`, 'POST', callback);
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channel}/invites`, 'POST', callback);
   }
 
   changeRole(guildId = '', user = '', roles = [], callback = () => {}) {

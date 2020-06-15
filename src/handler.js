@@ -2,6 +2,7 @@ const globals = require('./globals');
 const Me = require('../classes/Me');
 const Role = require('../classes/Role');
 const Guild = require('../classes/Guild');
+const Message = require('../classes/Message');
 const Channel = require('../classes/Channel');
 const PrivateChannel = require('../classes/PrivateChannel');
 
@@ -19,6 +20,8 @@ module.exports = (e) => {
   const { discord } = globals;
   const response = JSON.parse(e.data);
   console.log(response);
+
+  discord.seq = response.s || discord.seq;
 
   if (response.t === 'READY') {
     discord.sessionId = response.d.session_id;
@@ -41,9 +44,13 @@ module.exports = (e) => {
   }
 
   if (response.t === 'CHANNEL_CREATE') {
-    globals.channels[response.d.id] = new Channel(response.d);
+    if (response.d.guild_id) {
+      globals.channels[response.d.id] = new Channel(response.d);
 
-    globals.guilds[response.d.guild_id].channels[response.d.id] = globals.channels[response.d.id];
+      globals.guilds[response.d.guild_id].channels[response.d.id] = globals.channels[response.d.id];
+    } else {
+      globals.privateChannels[response.d.id] = new PrivateChannel(response.d);
+    }
   }
 
   if (response.t === 'GUILD_ROLE_UPDATE') {
@@ -51,7 +58,6 @@ module.exports = (e) => {
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {
-    globals.guilds[response.d.guild_id].updateUser(response.d);
   }
 
   if (response.t === 'PRESENCE_UPDATE') {
@@ -68,12 +74,30 @@ module.exports = (e) => {
         channel = globals.privateChannels[channelId || response.d.channel_id];
       }
 
-      channel.sendMessage(message, console.log);
+      channel.sendMessage(message);
     };
 
     if (globals.discord.onmessage) {
-      globals.discord.onmessage(response.d, reply);
+      globals.discord.onmessage(new Message(response.d), reply);
     }
+  }
+
+  if (response.t === 'RESUMED') {
+    if (discord.sessionResumed) {
+      discord.sessionResumed(response);
+    }
+  }
+
+  if (response.op === 9) {
+    if (discord.sessionInvalid) {
+      discord.sessionInvalid();
+    }
+
+    discord.gateway.close(1002);
+  }
+
+  if (response.op === 10) {
+    discord.createKeepAlive(response.d.heartbeat_interval);
   }
 
   if (globals.events[response.t]) {

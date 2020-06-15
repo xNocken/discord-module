@@ -26,7 +26,7 @@ class PrivateChannel {
 
     this.isDraining = true;
     const send = async (message) => {
-      await globals.requests.sendMessage(this.id, message.message, (response) => {
+      await globals.requests.sendMessage(this.id, message.message, message.tts, (response) => {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
@@ -47,7 +47,7 @@ class PrivateChannel {
     send(this.messageQueue.splice(0, 1)[0]);
   }
 
-  sendMessage(message, callback = () => {}) {
+  sendMessage(message, tts = false, callback = () => {}) {
     if (message.length < 1 || message.length > 2000) {
       callback(1);
       return;
@@ -59,7 +59,7 @@ class PrivateChannel {
       return;
     }
 
-    this.messageQueue.push({ message, callback });
+    this.messageQueue.push({ message, callback, tts });
     this.drainQueue();
   }
 
