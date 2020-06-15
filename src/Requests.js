@@ -46,6 +46,10 @@ class Requests {
     this.sendRequest('', `${apiUrl}/gateway`, 'GET', callback);
   }
 
+  banUser(guildId, userId, deleteMessageDays, reason, callback = () => {}) {
+    this.sendRequest(JSON.stringify({ 'delete-message-days': deleteMessageDays, reason }), `${apiUrl}/guilds/${guildId}/bans/${userId}`, 'PUT', callback);
+  }
+
   updateChannel(channelId, data, callback) {
     if (!channelId || !data || typeof channelId !== 'string' || typeof data !== 'object') {
       throw new TypeError('Invalid/No channelId or data provided');

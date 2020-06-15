@@ -50,6 +50,10 @@ module.exports = (e) => {
     globals.guilds[response.d.guild_id].roles[response.d.role.id] = new Role(response.d.role);
   }
 
+  if (response.t === 'GUILD_MEMBER_UPDATE') {
+    globals.guilds[response.d.guild_id].updateUser(response.d);
+  }
+
   if (response.t === 'PRESENCE_UPDATE') {
     if (globals.users[response.d.user.id]) {
       globals.users[response.d.user.id].setPresence(response.d);

@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const Requests = require('./src/Requests');
 const globals = require('./src/globals');
 const handler = require('./src/handler');
+const User = require('./classes/User');
 
 class Discord {
   constructor(authKey) {
@@ -33,7 +34,6 @@ class Discord {
       this.heartbeatInteval = setInterval(() => {
         this.gateway.send('{"op":1,"d":638}');
       }, 30000);
-D
       this.gateway.onclose = console.log;
 
       this.gateway.onmessage = handler;
@@ -70,5 +70,7 @@ D
     return true;
   }
 }
+
+Discord.User = User;
 
 module.exports = Discord;
