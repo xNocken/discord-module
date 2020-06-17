@@ -2,3 +2,4 @@
 2: Invalid type
 3: Not supported
 4: Invalid snowflake
+5: Not found

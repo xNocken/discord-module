@@ -44,6 +44,10 @@ class Message {
   react(emoji, callback = () => {}) {
     globals.requests.react(this.channel.id, this.id, emoji, callback);
   }
+
+  getChannel() {
+    return this.channel;
+  }
 }
 
 module.exports = Message;

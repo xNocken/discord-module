@@ -43,7 +43,7 @@ module.exports = (e) => {
     createGuild(response.d);
   }
 
-  if (response.t === 'CHANNEL_CREATE') {
+  if (response.t === 'CHANNEL_CREATE' || response.t === 'CHANNEL_UPDATE') {
     if (response.d.guild_id) {
       globals.channels[response.d.id] = new Channel(response.d);
 
@@ -58,6 +58,7 @@ module.exports = (e) => {
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {
+    globals.guilds[response.d.guild_id].updateUser(response.d);
   }
 
   if (response.t === 'PRESENCE_UPDATE') {
@@ -74,7 +75,7 @@ module.exports = (e) => {
         channel = globals.privateChannels[channelId || response.d.channel_id];
       }
 
-      channel.sendMessage(message);
+      channel.sendMessage(message, false, console.log);
     };
 
     if (globals.discord.onmessage) {

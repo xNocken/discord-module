@@ -71,7 +71,7 @@ class Channel {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
-          message.callback();
+          message.callback(response);
         }
 
         if (!this.messageQueue.length) {
@@ -231,6 +231,10 @@ class Channel {
 
   delete(callback = () => { }) {
     globals.requests.deleteChannel(this.id, callback);
+  }
+
+  typing() {
+    globals.requests.typing(this.id);
   }
 }
 

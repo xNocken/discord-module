@@ -2,6 +2,7 @@ const globals = require('../src/globals');
 const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
+const { discord } = require('../src/globals');
 
 class Guild {
   constructor(guild) {
@@ -119,6 +120,30 @@ class Guild {
   kickUser(user, callback) {
     const id = user.id || user;
     globals.requests.kickUser(this.id, id, callback);
+  }
+
+  updateUser(user) {
+    globals.users[user.user.id] = new User(user.user);
+    this.members[user.user.id] = {
+      ...user,
+      user: globals.users[user.user.id],
+      roles: user.roles.map((role) => globals.roles[role]),
+    };
+  }
+
+  userAddRole(user, roles = [], callback = () => { }) {
+    const userId = user.id || user;
+
+    const userObj = this.members[userId];
+
+    if (!userObj) {
+      callback(false);
+    }
+
+    globals.requests.setRoles(this.id, userId, [
+      ...userObj.roles.map((role) => role.id),
+      ...roles,
+    ], callback);
   }
 }
 

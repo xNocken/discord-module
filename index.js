@@ -41,7 +41,7 @@ class Discord {
             properties: {
               $os: process.platform,
               $browser: process.argv.useragent || 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
-              $device: 'PC',
+              $device: '',
             },
           },
         }));

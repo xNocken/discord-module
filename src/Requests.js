@@ -132,12 +132,12 @@ class Requests {
   }
 
   sendMessage(channelId = '', content = '', tts = false, callback = () => {}) {
-    if (!channelId || !content || typeof channelId !== 'string' || typeof content !== 'string') {
+    if (!channelId || content === undefined || typeof channelId !== 'string') {
       throw new TypeError('Invalid/No channelId or content provided');
     }
 
     const body = {
-      content,
+      content: content.toString(),
       tts,
     };
 
@@ -174,12 +174,12 @@ class Requests {
     this.sendRequest('', `${apiUrl}/channels/${guildId}/messages?limit=${count}`, 'GET', callback);
   }
 
-  typing(guildId = '', callback = () => {}) {
-    if (!guildId || typeof guildId !== 'string') {
+  typing(channelId = '', callback = () => {}) {
+    if (!channelId || typeof channelId !== 'string') {
       throw new TypeError('Invalid/No guildId provided');
     }
 
-    this.sendRequest('', `${apiUrl}/channels/${guildId}/typing`, 'POST', callback);
+    this.sendRequest('', `${apiUrl}/channels/${channelId}/typing`, 'POST', callback);
   }
 
   channelInfo(channelId = '', callback = () => {}) {
@@ -220,10 +220,10 @@ class Requests {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channel}/invites`, 'POST', callback);
   }
 
-  changeRole(guildId = '', user = '', roles = [], callback = () => {}) {
+  setRoles(guildId = '', userId = '', roles = [], callback = () => {}) {
     this.sendRequest(JSON.stringify({
       roles,
-    }), `${apiUrl}/guilds/${guildId}/members/${user}`, 'PATCH', callback);
+    }), `${apiUrl}/guilds/${guildId}/members/${userId}`, 'PATCH', callback);
   }
 
   checkInvite(code = '', callback = () => {}) {

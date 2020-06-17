@@ -6,7 +6,7 @@ class User {
     this.id = user.id;
     this.username = user.username;
     this.avatar = user.avatar;
-    this.dicriminator = user.discriminator;
+    this.discriminator = user.discriminator;
     this.publicFlags = new Flags(user.public_flags);
     this.flags = new Flags(user.flags);
     this.bot = user.bot;
