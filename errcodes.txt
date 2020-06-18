@@ -3,3 +3,5 @@
 3: Not supported
 4: Invalid snowflake
 5: Not found
+6: Not mine
+7: Not enough permissions

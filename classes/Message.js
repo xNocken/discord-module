@@ -23,7 +23,8 @@ class Message {
   constructor(message) {
     this.author = globals.users[message.author.id];
     this.content = message.content;
-    this.channel = globals.channels[message.channel_id] || globals.privateChannels[message.channel_id];
+    this.channel = globals.channels[message.channel_id]
+    || globals.privateChannels[message.channel_id];
     this.attachments = message.attachments;
     this.edited = message.edited_timestamp ? new Date(message.edited_timestamp) : null;
     this.time = new Date(message.timestamp);
@@ -41,12 +42,28 @@ class Message {
     this.pinned = message.pinned;
   }
 
-  react(emoji, callback = () => {}) {
+  react(emoji, callback = () => { }) {
     globals.requests.react(this.channel.id, this.id, emoji, callback);
   }
 
   getChannel() {
     return this.channel;
+  }
+
+  supressEmbed(callback) {
+    this.flags.SUPPRESS_EMBEDS = 1;
+    const newFlags = this.flags.getFlagNumber();
+
+    globals.requests.patchMessage(this.channel.id, this.id, { flags: newFlags }, callback);
+  }
+
+  editMessage(message, callback = () => { }) {
+    if (this.author.id !== globals.user.id) {
+      callback(6);
+      return;
+    }
+
+    globals.requests.patchMessage(this.channel.id, this.id, { content: message }, callback);
   }
 }
 

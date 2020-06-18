@@ -9,15 +9,15 @@ class MessageFlags {
 
   getFlagNumber() {
     let number = 0;
-    number += TouchList.URGENT;
+    number += this.URGENT;
     number <<= 1;
-    number += TouchList.SOURCE_MESSAGE_DELETED;
+    number += this.SOURCE_MESSAGE_DELETED;
     number <<= 1;
-    number += TouchList.SUPPRESS_EMBEDS;
+    number += this.SUPPRESS_EMBEDS;
     number <<= 1;
-    number += TouchList.IS_CROSSPOST;
+    number += this.IS_CROSSPOST;
     number <<= 1;
-    number += TouchList.CROSSPOSTED;
+    number += this.CROSSPOSTED;
 
     return number;
   }

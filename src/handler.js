@@ -19,7 +19,6 @@ const createGuild = (response) => {
 module.exports = (e) => {
   const { discord } = globals;
   const response = JSON.parse(e.data);
-  console.log(response);
 
   discord.seq = response.s || discord.seq;
 
@@ -45,7 +44,7 @@ module.exports = (e) => {
 
   if (response.t === 'CHANNEL_CREATE' || response.t === 'CHANNEL_UPDATE') {
     if (response.d.guild_id) {
-      globals.channels[response.d.id] = new Channel(response.d);
+      globals.channels[response.d.id] = new Channel(response.d, response.d.guild_id);
 
       globals.guilds[response.d.guild_id].channels[response.d.id] = globals.channels[response.d.id];
     } else {
@@ -75,7 +74,7 @@ module.exports = (e) => {
         channel = globals.privateChannels[channelId || response.d.channel_id];
       }
 
-      channel.sendMessage(message, false, console.log);
+      channel.sendMessage(message, false);
     };
 
     if (globals.discord.onmessage) {

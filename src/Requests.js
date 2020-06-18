@@ -42,6 +42,10 @@ class Requests {
     request(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR || null), err));
   }
 
+  patchMessage(channelId, messageId, body, callback = () => {}) {
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages/${messageId}`, 'PATCH', callback);
+  }
+
   getWSUrl(callback = () => {}) {
     this.sendRequest('', `${apiUrl}/gateway`, 'GET', callback);
   }
@@ -144,6 +148,10 @@ class Requests {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
   }
 
+  getMessage(channelId, messageId, callback = () => {}) {
+    this.sendRequest('', `${apiUrl}/channels/${channelId}/messages/${messageId}`, 'GET', callback);
+  }
+
   embed(guildId = '', embed = {}, callback = () => {}) {
     if (!guildId || !embed || typeof guildId !== 'string' || typeof embed !== 'object') {
       throw new TypeError('Invalid/No guildId or embed provided');
@@ -167,7 +175,7 @@ class Requests {
   }
 
   getMessages(guildId = '', count = 0, callback = () => {}) {
-    if (!guildId || !count || typeof guildId !== 'string' || typeof count !== 'string') {
+    if (!guildId || !count || typeof guildId !== 'string') {
       throw new TypeError('Invalid/No guildId or count provided');
     }
 

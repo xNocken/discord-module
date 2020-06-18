@@ -33,25 +33,31 @@ class Channel {
     });
   }
 
-  getPermissionOverwrite(user) {
+  getPermissionOverwrite(member) {
     const parentServer = globals.guilds[this.guildId];
     let perms = parentServer.everyoneRole.permissions.getPermissionNumber();
 
-    if (!user.user) {
+    if (!member.user) {
       throw Error('Invalid user given');
     }
 
-    if (parentServer.userIsAdmin(user.user.id) || parentServer.userIsOwner(user.user.id)) {
+    if (parentServer.userIsAdmin(member.user.id) || parentServer.userIsOwner(member.user.id)) {
       return new Permissions(Permissions.allPermissions);
     }
 
-    user.roles.forEach((role) => {
+    member.roles.forEach((role) => {
       perms |= role.permissions.getPermissionNumber();
     });
 
     Object.values(this.permission_overwrites).forEach((overWrite) => {
-      if ((overWrite.type === 'role' && parentServer.userHasRole(user.user.id, overWrite.id.id))
-        || (overWrite.type === 'member' && overWrite.id.id === user.user.id)) {
+      if ((overWrite.type === 'role' && parentServer.userHasRole(member.user.id, overWrite.id.id))) {
+        perms &= ~overWrite.deny.getPermissionNumber();
+        perms |= overWrite.allow.getPermissionNumber();
+      }
+    });
+
+    Object.values(this.permission_overwrites).forEach((overWrite) => {
+      if ((overWrite.type === 'member' && overWrite.id.id === member.user.id)) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
       }
@@ -71,7 +77,7 @@ class Channel {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
-          message.callback(response);
+          message.callback(new Message(response));
         }
 
         if (!this.messageQueue.length) {
@@ -89,11 +95,24 @@ class Channel {
   }
 
   createInvite(options, callback) {
-    console.log(this.id);
     globals.requests.createInvite(this.id, options, callback);
   }
 
   sendMessage(message, tts = false, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.SEND_MESSAGES) {
+      callback(7);
+      return;
+    }
+
+    if (tts && !perms.SEND_TTS_MESSAGES) {
+      callback(7);
+      return;
+    }
+
     if (message.length < 1 || message.length > 2000) {
       callback(1);
       return;
@@ -109,6 +128,15 @@ class Channel {
   }
 
   getMessages(count = 50, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.VIEW_CHANNEL || !perms.READ_MESSAGE_HISTORY) {
+      callback(7);
+      return;
+    }
+
     globals.requests.getMessages(this.id, count, (messages) => {
       if (messages) {
         callback(messages.map((message) => new Message(message)));
@@ -116,7 +144,31 @@ class Channel {
     });
   }
 
+  getMessage(messageId, callback) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.VIEW_CHANNEL || !perms.READ_MESSAGE_HISTORY) {
+      callback(7);
+      return;
+    }
+
+    globals.requests.getMessage(this.id, messageId, (message) => {
+      callback(new Message(message));
+    });
+  }
+
   setName(name = '', callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (!name || name.length < 2 || name.length > 100) {
       callback(1);
 
@@ -129,12 +181,30 @@ class Channel {
   }
 
   setPosition(position = '', callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     this.position = position;
 
     globals.requests.updateChannel(this.id, { position }, callback);
   }
 
   setType(type, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (type !== Channel.types.GUILD_TEXT && type !== Channel.types.GUILD_NEWS) {
       callback(2);
       return;
@@ -151,6 +221,15 @@ class Channel {
   }
 
   setTopic(topic, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (topic.length < 0 || topic.length > 1024) {
       callback(1);
       return;
@@ -162,6 +241,15 @@ class Channel {
   }
 
   setNsfw(nsfw, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (Number(nsfw) !== 0 && Number(nsfw) !== 1) {
       callback(1);
       return;
@@ -173,6 +261,15 @@ class Channel {
   }
 
   setRateLimitperUser(rateLimitperUser, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (rateLimitperUser < 0 || rateLimitperUser > 21600) {
       callback(1);
       return;
@@ -184,6 +281,15 @@ class Channel {
   }
 
   setBitrate(bitrate, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (this.type !== Channel.types.GUILD_VOICE) {
       callback(2);
       return;
@@ -200,6 +306,15 @@ class Channel {
   }
 
   setUserLimit(UserLimit, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (UserLimit < 0 || UserLimit > 99) {
       callback(1);
       return;
@@ -211,6 +326,15 @@ class Channel {
   }
 
   setpermissionOverwrites(permissionOverwrites, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     this.permission_overwrites = permissionOverwrites;
 
     globals.requests.updateChannel(this.id, {
@@ -219,6 +343,15 @@ class Channel {
   }
 
   setParentId(parentId, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     if (parentId.toString().length !== 18) {
       callback(4);
       return;
@@ -230,6 +363,15 @@ class Channel {
   }
 
   delete(callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.MANAGE_CHANNELS) {
+      callback(7);
+      return;
+    }
+
     globals.requests.deleteChannel(this.id, callback);
   }
 

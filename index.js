@@ -8,10 +8,12 @@ const User = require('./classes/User');
 process.argv = yargs.alias('help', 'h').argv;
 
 class Discord {
-  constructor(authKey) {
+  constructor(config) {
     globals.discord = this;
-    globals.requests = new Requests(authKey);
-    this.key = authKey;
+    globals.requests = new Requests(config.token);
+    this.key = config.token;
+    this.shard = config.shard || null;
+    this.config = config;
     this.sessionId = '';
     this.seq = null;
     this.onmessage = null;
@@ -19,7 +21,7 @@ class Discord {
     this.gateway = this.createGateway();
   }
 
-  createGateway() {
+  createGateway(reconnect) {
     const handleDisconnect = (response) => {
       if (this.onDisconnect) {
         this.onDisconnect(response);
@@ -27,24 +29,35 @@ class Discord {
 
       clearInterval(this.heartbeatIntevall);
       this.gateway = undefined;
-      this.gateway = this.createGateway();
+      this.gateway = this.createGateway(response.code !== 1002);
     };
 
     globals.requests.getWSUrl((url) => {
       this.gateway = new WebSocket(url.url);
 
       this.gateway.onopen = () => {
-        this.gateway.send(JSON.stringify({
-          op: 2,
-          d: {
-            token: this.key,
-            properties: {
-              $os: process.platform,
-              $browser: process.argv.useragent || 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
-              $device: '',
+        if (reconnect) {
+          this.gateway.send(JSON.stringify({
+            op: 6,
+            d: {
+              token: this.key,
+              session_id: this.sessionId,
+              seq: this.seq,
             },
-          },
-        }));
+          }));
+        } else {
+          this.gateway.send(JSON.stringify({
+            op: 2,
+            d: {
+              properties: {
+                $os: process.platform,
+                $browser: process.argv.useragent || 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+                $device: '',
+              },
+              ...this.config,
+            },
+          }));
+        }
       };
 
       this.gateway.onmessage = handler;
