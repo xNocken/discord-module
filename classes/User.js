@@ -18,6 +18,12 @@ class User {
     this.activities = presence.activities;
   }
 
+  getPrivateChannelId(callback) {
+    globals.requests.createPrivateChannel([this.id], (user) => {
+      callback(user.message || user.id);
+    });
+  }
+
   static getUserById(id, callback) {
     globals.requests.getUserInfo(id, (user) => {
       if (user.id) {

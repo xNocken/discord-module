@@ -24,7 +24,7 @@ class Message {
     this.author = globals.users[message.author.id];
     this.content = message.content;
     this.channel = globals.channels[message.channel_id]
-    || globals.privateChannels[message.channel_id];
+      || globals.privateChannels[message.channel_id];
     this.attachments = message.attachments;
     this.edited = message.edited_timestamp ? new Date(message.edited_timestamp) : null;
     this.time = new Date(message.timestamp);
@@ -43,6 +43,15 @@ class Message {
   }
 
   react(emoji, callback = () => { }) {
+    const perms = this.channel.getPermissionOverwrite(
+      globals.guilds[this.channel.guildId].members[globals.user.id],
+    );
+
+    if (!perms.ADD_REACTIONS || !perms.READ_MESSAGE_HISTORY) {
+      callback(7);
+      return;
+    }
+
     globals.requests.react(this.channel.id, this.id, emoji, callback);
   }
 
@@ -51,6 +60,15 @@ class Message {
   }
 
   supressEmbed(callback) {
+    const perms = this.channel.getPermissionOverwrite(
+      globals.guilds[this.channel.guildId].members[global.user.id],
+    );
+
+    if (!perms.MANAGE_MESSAGES) {
+      callback(7);
+      return;
+    }
+
     this.flags.SUPPRESS_EMBEDS = 1;
     const newFlags = this.flags.getFlagNumber();
 
@@ -64,6 +82,19 @@ class Message {
     }
 
     globals.requests.patchMessage(this.channel.id, this.id, { content: message }, callback);
+  }
+
+  delete(callback) {
+    const perms = this.channel.getPermissionOverwrite(
+      globals.guilds[this.channel.guildId].members[globals.user.id],
+    );
+
+    if (this.author.id === globals.user.id || !perms.MANAGE_MESSAGES) {
+      callback(7);
+      return;
+    }
+
+    globals.requests.deleteMessage(this.channel.id, this.id, callback);
   }
 }
 

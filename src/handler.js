@@ -83,14 +83,14 @@ module.exports = (e) => {
   }
 
   if (response.t === 'RESUMED') {
-    if (discord.sessionResumed) {
-      discord.sessionResumed(response);
+    if (discord.onResumed) {
+      discord.onResumed(response);
     }
   }
 
   if (response.op === 9) {
-    if (discord.sessionInvalid) {
-      discord.sessionInvalid();
+    if (discord.onSessionInvalid) {
+      discord.onSessionInvalid();
     }
 
     discord.gateway.close(1002);

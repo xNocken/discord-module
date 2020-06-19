@@ -95,6 +95,15 @@ class Channel {
   }
 
   createInvite(options, callback) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.CREATE_INSTANT_INVITE) {
+      callback(7);
+      return;
+    }
+
     globals.requests.createInvite(this.id, options, callback);
   }
 
@@ -140,6 +149,8 @@ class Channel {
     globals.requests.getMessages(this.id, count, (messages) => {
       if (messages) {
         callback(messages.map((message) => new Message(message)));
+      } else {
+        callback(messages);
       }
     });
   }
@@ -325,7 +336,7 @@ class Channel {
     globals.requests.updateChannel(this.id, { user_limit: UserLimit }, callback);
   }
 
-  setpermissionOverwrites(permissionOverwrites, callback = () => { }) {
+  setPermissionOverwrites(permissionOverwrites, callback = () => { }) {
     const perms = this.getPermissionOverwrite(
       globals.guilds[this.guildId].getUserById(globals.user.id),
     );

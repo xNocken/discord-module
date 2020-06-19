@@ -19,6 +19,10 @@ class PrivateChannel {
     });
   }
 
+  getPermissionOverwrite() {
+    return true;
+  }
+
   async drainQueue() {
     if (this.isDraining) {
       return;
@@ -76,7 +80,7 @@ class PrivateChannel {
   }
 
   createInvite(options, callback) {
-    globals.requests.createInvite(this.guildId, options, callback);
+    callback(false);
   }
 }
 

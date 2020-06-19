@@ -1,0 +1,3 @@
+// this file is for developement only
+
+module.exports = 'token';

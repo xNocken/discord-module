@@ -91,11 +91,15 @@ class Discord {
   }
 
   getChannelById(id) {
-    return globals.channels[id] || false;
+    return globals.channels[id] || globals.privateChannels[id] || false;
   }
 
   getUsers() {
     return globals.users;
+  }
+
+  getUserById(id) {
+    return globals.users[id] || false;
   }
 
   getGlobals() {

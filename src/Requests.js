@@ -46,6 +46,10 @@ class Requests {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages/${messageId}`, 'PATCH', callback);
   }
 
+  createPrivateChannel(userIds, callback = () => {}) {
+    this.sendRequest(JSON.stringify({ recipients: userIds }), `${apiUrl}/users/@me/channels`, 'POST', callback);
+  }
+
   getWSUrl(callback = () => {}) {
     this.sendRequest('', `${apiUrl}/gateway`, 'GET', callback);
   }

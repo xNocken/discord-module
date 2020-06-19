@@ -92,19 +92,43 @@ class Guild {
   }
 
   userIsAdmin(userId) {
-    let isAdmin = false;
-
     if (!this.members[userId]) {
       throw ReferenceError('User not found on this server');
     }
 
-    this.members[userId].roles.forEach((role) => {
-      if (role.permissions.ADMINISTRATOR) {
-        isAdmin = true;
+    return this.userHasPermissions(userId, ['ADMINISTRATOR']);
+  }
+
+  userHasPermissions(userId, permissions) {
+    const permission = {};
+    let isAdmin = false;
+    if (!this.members[userId]) {
+      throw ReferenceError('User not found on this server');
+    }
+
+    permissions.forEach((perm) => {
+      this.members[userId].roles.forEach((role) => {
+        if (role.permissions[perm]) {
+          permission[perm] = true;
+        } else if (role.permissions.ADMINISTRATOR) {
+          isAdmin = true;
+        }
+      });
+    });
+
+    if (isAdmin) {
+      return true;
+    }
+
+    let hasAll = Object.values(permission).length !== 0;
+
+    Object.values(permission).forEach((perm) => {
+      if (!perm) {
+        hasAll = false;
       }
     });
 
-    return isAdmin;
+    return hasAll;
   }
 
   userIsOwner(userId) {
@@ -112,11 +136,21 @@ class Guild {
   }
 
   banUser(user, callback, reason = '', deleteMessagesDays = 0) {
+    if (!this.userHasPermissions(globals.user.id, ['BAN_MEMBERS'])) {
+      callback(7);
+      return;
+    }
+
     const id = user.id || user;
     globals.requests.banUser(this.id, id, deleteMessagesDays, reason, callback);
   }
 
   kickUser(user, callback) {
+    if (!this.userHasPermissions(globals.user.id, ['KICK_MEMBERS'])) {
+      callback(7);
+      return;
+    }
+
     const id = user.id || user;
     globals.requests.kickUser(this.id, id, callback);
   }
@@ -131,6 +165,11 @@ class Guild {
   }
 
   userAddRole(user, roles = [], callback = () => { }) {
+    if (!this.userHasPermissions(globals.user.id, ['MANAGE_ROLES'])) {
+      callback(7);
+      return;
+    }
+
     const userId = user.id || user;
 
     const userObj = this.members[userId];
@@ -143,6 +182,33 @@ class Guild {
       ...userObj.roles.map((role) => role.id),
       ...roles,
     ], callback);
+  }
+
+  userRemoveRole(user, roles = [], callback = () => { }) {
+    if (!this.userHasPermissions(globals.user.id, ['MANAGE_ROLES'])) {
+      callback(7);
+      return;
+    }
+
+    const userId = user.id || user;
+
+    const userObj = this.members[userId];
+
+    if (!userObj) {
+      callback(false);
+    }
+
+    const roless = userObj.roles.map((role) => role.id);
+
+    roles.forEach((removeRole) => {
+      roless.forEach((role, index) => {
+        if (role === removeRole) {
+          roless.splice(index, 1);
+        }
+      });
+    });
+
+    globals.requests.setRoles(this.id, userId, roless, callback);
   }
 }
 
