@@ -12,19 +12,19 @@ const maxBitratePerLevel = [
 class Channel {
   constructor(channel, guildId) {
     this.id = channel.id;
-    this.last_message_id = channel.last_message_id;
+    this.lastMessageId = channel.last_message_id;
     this.name = channel.name;
-    this.parent_id = channel.parent_id;
+    this.parentId = channel.parent_id;
     this.position = channel.position;
-    this.rate_limit_per_user = channel.rate_limit_per_user;
+    this.rateLimitPerUser = channel.rate_limit_per_user;
     this.topic = channel.topic;
     this.type = channel.type;
-    this.permission_overwrites = [];
+    this.permissionOverwrites = [];
     this.guildId = guildId;
     this.messageQueue = [];
 
     channel.permission_overwrites.forEach((permissionOverwrite) => {
-      this.permission_overwrites[permissionOverwrite.id] = {
+      this.permissionOverwrites[permissionOverwrite.id] = {
         allow: new Permissions(permissionOverwrite.allow),
         deny: new Permissions(permissionOverwrite.deny),
         id: globals[permissionOverwrite.type === 'role' ? 'roles' : 'users'][permissionOverwrite.id],
@@ -49,14 +49,14 @@ class Channel {
       perms |= role.permissions.getPermissionNumber();
     });
 
-    Object.values(this.permission_overwrites).forEach((overWrite) => {
+    Object.values(this.permissionOverwrites).forEach((overWrite) => {
       if ((overWrite.type === 'role' && parentServer.userHasRole(member.user.id, overWrite.id.id))) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
       }
     });
 
-    Object.values(this.permission_overwrites).forEach((overWrite) => {
+    Object.values(this.permissionOverwrites).forEach((overWrite) => {
       if ((overWrite.type === 'member' && overWrite.id.id === member.user.id)) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
@@ -136,7 +136,7 @@ class Channel {
     this.drainQueue();
   }
 
-  getMessages(count = 50, callback = () => { }) {
+  getMessages(count = 50, before = null, callback = () => { }) {
     const perms = this.getPermissionOverwrite(
       globals.guilds[this.guildId].getUserById(globals.user.id),
     );
@@ -146,7 +146,7 @@ class Channel {
       return;
     }
 
-    globals.requests.getMessages(this.id, count, (messages) => {
+    globals.requests.getMessages(this.id, count, before, (messages) => {
       if (messages) {
         callback(messages.map((message) => new Message(message)));
       } else {
@@ -188,7 +188,9 @@ class Channel {
 
     this.name = name;
 
-    globals.requests.updateChannel(this.id, { name }, callback);
+    globals.requests.updateChannel(this.id, { name }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setPosition(position = '', callback = () => { }) {
@@ -203,7 +205,9 @@ class Channel {
 
     this.position = position;
 
-    globals.requests.updateChannel(this.id, { position }, callback);
+    globals.requests.updateChannel(this.id, { position }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setType(type, callback = () => { }) {
@@ -228,7 +232,9 @@ class Channel {
 
     this.type = type;
 
-    globals.requests.updateChannel(this.id, { type }, callback);
+    globals.requests.updateChannel(this.id, { type }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setTopic(topic, callback = () => { }) {
@@ -248,7 +254,9 @@ class Channel {
 
     this.topic = topic;
 
-    globals.requests.updateChannel(this.id, { topic }, callback);
+    globals.requests.updateChannel(this.id, { topic }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setNsfw(nsfw, callback = () => { }) {
@@ -268,10 +276,12 @@ class Channel {
 
     this.nsfw = nsfw;
 
-    globals.requests.updateChannel(this.id, { nsfw }, callback);
+    globals.requests.updateChannel(this.id, { nsfw }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
-  setRateLimitperUser(rateLimitperUser, callback = () => { }) {
+  setRateLimitPerUser(rateLimitperUser, callback = () => { }) {
     const perms = this.getPermissionOverwrite(
       globals.guilds[this.guildId].getUserById(globals.user.id),
     );
@@ -286,9 +296,13 @@ class Channel {
       return;
     }
 
-    this.rate_limit_per_user = rateLimitperUser;
+    this.rateLimitPerUser = rateLimitperUser;
 
-    globals.requests.updateChannel(this.id, { rate_limit_per_user: rateLimitperUser }, callback);
+    globals.requests.updateChannel(this.id, {
+      rate_limit_per_user: rateLimitperUser,
+    }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setBitrate(bitrate, callback = () => { }) {
@@ -313,7 +327,9 @@ class Channel {
 
     this.bitrate = bitrate;
 
-    globals.requests.updateChannel(this.id, { bitrate }, callback);
+    globals.requests.updateChannel(this.id, { bitrate }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setUserLimit(UserLimit, callback = () => { }) {
@@ -333,7 +349,9 @@ class Channel {
 
     this.user_limit = UserLimit;
 
-    globals.requests.updateChannel(this.id, { user_limit: UserLimit }, callback);
+    globals.requests.updateChannel(this.id, { user_limit: UserLimit }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setPermissionOverwrites(permissionOverwrites, callback = () => { }) {
@@ -346,11 +364,13 @@ class Channel {
       return;
     }
 
-    this.permission_overwrites = permissionOverwrites;
+    this.permissionOverwrites = permissionOverwrites;
 
     globals.requests.updateChannel(this.id, {
       permission_overwrites: permissionOverwrites,
-    }, callback);
+    }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   setParentId(parentId, callback = () => { }) {
@@ -368,9 +388,11 @@ class Channel {
       return;
     }
 
-    this.parent_id = parentId;
+    this.parentId = parentId;
 
-    globals.requests.updateChannel(this.id, { parent_id: parentId }, callback);
+    globals.requests.updateChannel(this.id, { parent_id: parentId }, (newChannel) => {
+      callback(new Channel(newChannel));
+    });
   }
 
   delete(callback = () => { }) {
@@ -383,7 +405,9 @@ class Channel {
       return;
     }
 
-    globals.requests.deleteChannel(this.id, callback);
+    globals.requests.deleteChannel(this.id, (response) => {
+      callback(new Channel(response));
+    });
   }
 
   typing() {

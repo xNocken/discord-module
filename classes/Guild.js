@@ -102,6 +102,7 @@ class Guild {
   userHasPermissions(userId, permissions) {
     const permission = {};
     let isAdmin = false;
+
     if (!this.members[userId]) {
       throw ReferenceError('User not found on this server');
     }
@@ -135,7 +136,7 @@ class Guild {
     return this.owner_id === userId;
   }
 
-  banUser(user, callback, reason = '', deleteMessagesDays = 0) {
+  banUser(user, reason = '', deleteMessagesDays = 0, callback) {
     if (!this.userHasPermissions(globals.user.id, ['BAN_MEMBERS'])) {
       callback(7);
       return;
@@ -164,7 +165,7 @@ class Guild {
     };
   }
 
-  userAddRole(user, roles = [], callback = () => { }) {
+  userAddRoles(user, roles = [], callback = () => { }) {
     if (!this.userHasPermissions(globals.user.id, ['MANAGE_ROLES'])) {
       callback(7);
       return;
@@ -184,7 +185,7 @@ class Guild {
     ], callback);
   }
 
-  userRemoveRole(user, roles = [], callback = () => { }) {
+  userRemoveRoles(user, roles = [], callback = () => { }) {
     if (!this.userHasPermissions(globals.user.id, ['MANAGE_ROLES'])) {
       callback(7);
       return;

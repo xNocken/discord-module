@@ -178,12 +178,12 @@ class Requests {
     this.sendRequest('', `${apiUrl}/channels/${channelId}/messages/${messageId} `, 'DELETE', callback);
   }
 
-  getMessages(guildId = '', count = 0, callback = () => {}) {
+  getMessages(guildId = '', count = 0, before = null, callback = () => {}) {
     if (!guildId || !count || typeof guildId !== 'string') {
       throw new TypeError('Invalid/No guildId or count provided');
     }
 
-    this.sendRequest('', `${apiUrl}/channels/${guildId}/messages?limit=${count}`, 'GET', callback);
+    this.sendRequest('', `${apiUrl}/channels/${guildId}/messages?limit=${count}${before ? `&before=${before}` : ''}`, 'GET', callback);
   }
 
   typing(channelId = '', callback = () => {}) {

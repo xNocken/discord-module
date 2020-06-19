@@ -72,7 +72,9 @@ class Message {
     this.flags.SUPPRESS_EMBEDS = 1;
     const newFlags = this.flags.getFlagNumber();
 
-    globals.requests.patchMessage(this.channel.id, this.id, { flags: newFlags }, callback);
+    globals.requests.patchMessage(this.channel.id, this.id, { flags: newFlags }, (message) => {
+      callback(new Message(message));
+    });
   }
 
   editMessage(message, callback = () => { }) {
@@ -81,7 +83,9 @@ class Message {
       return;
     }
 
-    globals.requests.patchMessage(this.channel.id, this.id, { content: message }, callback);
+    globals.requests.patchMessage(this.channel.id, this.id, { content: message }, (response) => {
+      callback(new Message(response));
+    });
   }
 
   delete(callback) {

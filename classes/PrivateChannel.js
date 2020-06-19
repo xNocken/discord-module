@@ -34,7 +34,7 @@ class PrivateChannel {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
-          message.callback(response);
+          message.callback(new Message(response));
         }
 
         if (!this.messageQueue.length) {
@@ -77,10 +77,6 @@ class PrivateChannel {
 
   delete(callback = () => {}) {
     globals.requests.deleteChannel(this.id, callback);
-  }
-
-  createInvite(options, callback) {
-    callback(false);
   }
 }
 

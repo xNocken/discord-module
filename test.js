@@ -7,6 +7,20 @@ const discord = new Discord({
 });
 
 discord.onmessage = (message = new Message(), reply) => {
+  if (message.getChannel().guildId === '530776772883775489') {
+    return;
+  }
+  if (message.getChannel().guildId === '661502726588334090') {
+    return;
+  }
+  if (message.getChannel().guildId === '701463031644946483') {
+    return;
+  }
+
+  if (!message.author || message.author.bot) {
+    return;
+  }
+
   const args = message.content.split(' ');
 
   args.splice(0, 1);
@@ -115,7 +129,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 
   if (message.content.startsWith('#messages')) {
-    discord.getGlobals().channels['715981804196069477'].getMessages(10, (messages) => {
+    discord.getGlobals().channels['715981804196069477'].getMessages(10, null, (messages) => {
       if (typeof messages === 'object') {
         messages.forEach((messag) => {
           reply(`${messag.author.username}: ${messag.content}`);
