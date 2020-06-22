@@ -73,7 +73,7 @@ class Channel {
 
     this.isDraining = true;
     const send = async (message) => {
-      await globals.requests.sendMessage(this.id, message.message, message.tts, (response) => {
+      const callback = (response) => {
         if (response.retry_after) {
           this.messageQueue.unshift(message);
         } else {
@@ -88,7 +88,13 @@ class Channel {
         setTimeout(() => {
           send(this.messageQueue.splice(0, 1)[0]);
         }, response.retry_after || 0);
-      });
+      };
+
+      if (typeof message.message === 'object') {
+        await globals.requests.sendEmbed(this.id, message.message, message.tts, callback);
+      } else {
+        await globals.requests.sendMessage(this.id, message.message, message.tts, callback);
+      }
     };
 
     send(this.messageQueue.splice(0, 1)[0]);
@@ -122,17 +128,23 @@ class Channel {
       return;
     }
 
-    if (message.length < 1 || message.length > 2000) {
-      callback(1);
-      return;
-    }
-
     if (this.type === Channel.types.GUILD_VOICE || this.type === Channel.types.GUILD_STORE) {
       callback(2);
       return;
     }
 
-    this.messageQueue.push({ message, callback, tts });
+    if (typeof message === 'object') {
+      this.messageQueue.push({ message, callback, tts });
+    } else {
+      const messageSplit = message.split('');
+
+      do {
+        this.messageQueue.push({ message: messageSplit.splice(0, 1999).join('').replace(/@everyone/g, '@3veryone'), callback, tts });
+      } while (messageSplit.length > 1);
+    }
+
+    console.log(this.messageQueue.length);
+
     this.drainQueue();
   }
 

@@ -59,6 +59,8 @@ const discord = new DiscordModule(options);
 
 [User](./docs/user.md)
 
+[Sharding](./docs/sharding.md)
+
 ## Infos
 
 [Errorcodes](docs/errorcodes.md)

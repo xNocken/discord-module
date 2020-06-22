@@ -18,6 +18,8 @@ process.argv.forEach((arg) => {
   }
 });
 
+process.debug = Boolean(process.args.debug);
+
 class Discord {
   constructor(config) {
     globals.discord = this;
@@ -46,6 +48,13 @@ class Discord {
     globals.requests.getWSUrl((url) => {
       this.gateway = new WebSocket(url.url);
 
+      if (process.args.maxshards) {
+        this.config.shard = [
+          parseInt(process.args.shard[0], 10),
+          parseInt(process.args.maxshards[0], 10),
+        ];
+      }
+
       this.gateway.onopen = () => {
         if (reconnect) {
           this.gateway.send(JSON.stringify({
@@ -63,7 +72,7 @@ class Discord {
               properties: {
                 $os: process.platform,
                 $browser: process.args.useragent ? process.args.useragent[0] : 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
-                $device: '',
+                $device: 'discord-module',
               },
               ...this.config,
             },
