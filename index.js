@@ -1,11 +1,22 @@
 const WebSocket = require('ws');
-const yargs = require('yargs');
 const Requests = require('./src/Requests');
 const globals = require('./src/globals');
 const handler = require('./src/handler');
 const User = require('./classes/User');
 
-process.argv = yargs.alias('help', 'h').argv;
+let lastKey = 'noargs';
+
+process.args = { noargs: [] };
+process.argv.forEach((arg) => {
+  if (arg.startsWith('--')) {
+    let _;
+    [_, lastKey] = arg.split('--');
+    _.toString();
+    process.args[lastKey] = [];
+  } else {
+    process.args[lastKey].push(arg);
+  }
+});
 
 class Discord {
   constructor(config) {
@@ -51,7 +62,7 @@ class Discord {
             d: {
               properties: {
                 $os: process.platform,
-                $browser: process.argv.useragent || 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+                $browser: process.args.useragent ? process.args.useragent[0] : 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
                 $device: '',
               },
               ...this.config,
