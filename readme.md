@@ -35,33 +35,33 @@ const options = {
 const discord = new DiscordModule(options);
 ```
 
-[More Infos to that](.github/gettingstarted.md)
+[More Infos to that](docs/gettingstarted.md)
 
 ## Features
 
-[Channel](./.github/channel.md)
+[Channel](./docs/channel.md)
 
-[Flags](./.github/flags.md)
+[Flags](./docs/flags.md)
 
-[Guild](./.github/guild.md)
+[Guild](./docs/guild.md)
 
-[Me](./.github/me.md)
+[Me](./docs/me.md)
 
-[Message](./.github/message.md)
+[Message](./docs/message.md)
 
-[MessageFlags](./.github/messageflags.md)
+[MessageFlags](./docs/messageflags.md)
 
-[Permissions](./.github/permissions.md)
+[Permissions](./docs/permissions.md)
 
-[PrivateChannel](./.github/privatechannel.md)
+[PrivateChannel](./docs/privatechannel.md)
 
-[Role](./.github/role.md)
+[Role](./docs/role.md)
 
-[User](./.github/user.md)
+[User](./docs/user.md)
 
 ## Infos
 
-[Errorcodes](.github/errorcodes.md)
+[Errorcodes](docs/errorcodes.md)
 
 ## Contributing
 
