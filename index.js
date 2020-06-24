@@ -3,6 +3,7 @@ const Requests = require('./src/Requests');
 const globals = require('./src/globals');
 const handler = require('./src/handler');
 const User = require('./classes/User');
+const Channel = require('./classes/Channel');
 
 let lastKey = 'noargs';
 
@@ -142,5 +143,6 @@ class Discord {
 }
 
 Discord.User = User;
+Discord.Channel = Channel;
 
 module.exports = Discord;

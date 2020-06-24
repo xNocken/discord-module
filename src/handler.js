@@ -67,14 +67,14 @@ module.exports = (e) => {
   }
 
   if (response.t === 'MESSAGE_CREATE') {
-    const reply = (message, channelId) => {
+    const reply = (message, channelId, callback) => {
       let channel = globals.channels[channelId || response.d.channel_id];
 
       if (!channel) {
         channel = globals.privateChannels[channelId || response.d.channel_id];
       }
 
-      channel.sendMessage(message, false);
+      channel.sendMessage(message, false, callback);
     };
 
     if (globals.discord.onmessage) {
