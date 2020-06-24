@@ -8,6 +8,7 @@ class PrivateChannel {
     this.last_message_id = channel.last_message_id;
     this.name = channel.name;
     this.recipients = {};
+    this.type = channel.type;
     this.messageQueue = [];
 
     channel.recipients.forEach((user) => {

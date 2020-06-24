@@ -6,6 +6,7 @@
 - last_message_id
 - name
 - recipients
+- type
 
 ## Methods
 
