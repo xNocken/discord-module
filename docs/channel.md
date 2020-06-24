@@ -46,6 +46,20 @@ message.getChannel().sendMessage('Content', false, (message) => {
 });
 ```
 
+sendMessageBody(body, callback): [Message](./message.md)
+
+```javascript
+const body = {
+  content: 'Text',
+  tts: false,
+  file: file,
+}
+
+message.getChannel().sendMessage(body, (message) => {
+  console.log(message);
+});
+```
+
 getMessages(amount, before): Array -> [Message](./message.md)
 
 ```javascript

@@ -92,8 +92,10 @@ class Channel {
 
       if (typeof message.message === 'object') {
         await globals.requests.sendEmbed(this.id, message.message, message.tts, callback);
-      } else {
+      } else if (message.message) {
         await globals.requests.sendMessage(this.id, message.message, message.tts, callback);
+      } else {
+        await globals.requests.sendMessageBody(this.id, message.body, callback);
       }
     };
 
@@ -143,7 +145,25 @@ class Channel {
       } while (messageSplit.length > 1);
     }
 
-    console.log(this.messageQueue.length);
+    this.drainQueue();
+  }
+
+  sendMessageBody(body, callback = () => { }) {
+    const perms = this.getPermissionOverwrite(
+      globals.guilds[this.guildId].getUserById(globals.user.id),
+    );
+
+    if (!perms.SEND_MESSAGES) {
+      callback(7);
+      return;
+    }
+
+    if (this.type === Channel.types.GUILD_VOICE || this.type === Channel.types.GUILD_STORE) {
+      callback(2);
+      return;
+    }
+
+    this.messageQueue.push({ body, callback });
 
     this.drainQueue();
   }

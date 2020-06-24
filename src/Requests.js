@@ -152,6 +152,14 @@ class Requests {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
   }
 
+  sendMessageBody(channelId = '', body = {}, callback = () => { }) {
+    if (!channelId || body === undefined || typeof channelId !== 'string') {
+      throw new TypeError('Invalid/No channelId or content provided');
+    }
+
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
+  }
+
   getMessage(channelId, messageId, callback = () => { }) {
     this.sendRequest('', `${apiUrl}/channels/${channelId}/messages/${messageId}`, 'GET', callback);
   }
