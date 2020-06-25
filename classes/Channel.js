@@ -34,30 +34,35 @@ class Channel {
   }
 
   getPermissionOverwrite(member) {
+    let realMember = member;
+    if (!realMember.user) {
+      realMember = globals.guilds[this.guildId].members[member];
+    }
+
     const parentServer = globals.guilds[this.guildId];
     let perms = parentServer.everyoneRole.permissions.getPermissionNumber();
 
-    if (!member.user) {
+    if (!realMember.user) {
       throw Error('Invalid user given');
     }
 
-    if (parentServer.userIsAdmin(member.user.id) || parentServer.userIsOwner(member.user.id)) {
+    if (parentServer.userIsAdmin(realMember.user.id) || parentServer.userIsOwner(realMember.user.id)) {
       return new Permissions(Permissions.allPermissions);
     }
 
-    member.roles.forEach((role) => {
+    realMember.roles.forEach((role) => {
       perms |= role.permissions.getPermissionNumber();
     });
 
     Object.values(this.permissionOverwrites).forEach((overWrite) => {
-      if ((overWrite.type === 'role' && parentServer.userHasRole(member.user.id, overWrite.id.id))) {
+      if ((overWrite.type === 'role' && parentServer.userHasRole(realMember.user.id, overWrite.id.id))) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
       }
     });
 
     Object.values(this.permissionOverwrites).forEach((overWrite) => {
-      if ((overWrite.type === 'member' && overWrite.id.id === member.user.id)) {
+      if ((overWrite.type === 'member' && overWrite.id.id === realMember.user.id)) {
         perms &= ~overWrite.deny.getPermissionNumber();
         perms |= overWrite.allow.getPermissionNumber();
       }

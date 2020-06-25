@@ -52,8 +52,9 @@ module.exports = (e) => {
     }
   }
 
-  if (response.t === 'GUILD_ROLE_UPDATE') {
-    globals.guilds[response.d.guild_id].roles[response.d.role.id] = new Role(response.d.role);
+  if (response.t === 'GUILD_ROLE_UPDATE' || response.t === 'GUILD_ROLE_CREATE') {
+    globals.roles[response.d.role.id] = new Role(response.d.role, response.d.guild_id);
+    globals.guilds[response.d.guild_id].roles[response.d.role.id] = globals.roles[response.d.role.id];
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {

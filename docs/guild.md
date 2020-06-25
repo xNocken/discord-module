@@ -135,6 +135,25 @@ guild.userRemoveRoles(message.author || '713465139377995867', ['7041287859221299
 });
 ```
 
+createRole(name, permissions, color, hoist, mentionable, callback): [Role](role.md)
+
+```javascript
+const perms = new Permissions();
+
+perms.addPermissions(['READ_MESSAGE_HISTORY', 'SEND_MESSAGES']);
+guild.createRole('New role', perms.getPermissionNumber(), 0, true, false, (response) => {
+  console.log(response);
+});
+```
+
+createChannel(name, type, callback): [Channel](channel.md)
+
+```javascript
+guild.createChannel('Nice channel', Guild.types.GUILD_TEXT, (response) => {
+  console.log(response);
+});
+```
+
 ## Set Methods
 
 TODO

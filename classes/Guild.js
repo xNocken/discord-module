@@ -211,6 +211,27 @@ class Guild {
 
     globals.requests.setRoles(this.id, userId, roless, callback);
   }
+
+  createRole(name, permissions, color, hoist, mentionable, callback) {
+    globals.requests.createRole({
+      name,
+      permissions,
+      color,
+      hoist,
+      mentionable,
+    }, this.id, (response) => {
+      callback(new Role(response, this.id));
+    });
+  }
+
+  createChannel(name, type, callback) {
+    globals.requests.createChannel(this.id, {
+      name,
+      type,
+    }, (response) => {
+      callback(new Channel(response), this.id);
+    });
+  }
 }
 
 module.exports = Guild;

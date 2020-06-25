@@ -4,6 +4,7 @@ const globals = require('./src/globals');
 const handler = require('./src/handler');
 const User = require('./classes/User');
 const Channel = require('./classes/Channel');
+const Permissions = require('./classes/Permissions');
 
 let lastKey = 'noargs';
 
@@ -144,5 +145,6 @@ class Discord {
 
 Discord.User = User;
 Discord.Channel = Channel;
+Discord.Permissions = Permissions;
 
 module.exports = Discord;

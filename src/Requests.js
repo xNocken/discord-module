@@ -269,6 +269,14 @@ class Requests {
   updateRole(guildId, roleId, roleSettings, callback = () => { }) {
     this.sendRequest(JSON.stringify(roleSettings), `${apiUrl}/guilds/${guildId}/roles/${roleId}`, 'PATCH', callback);
   }
+
+  createRole(body, guildId, callback = () => {}) {
+    this.sendRequest(JSON.stringify(body), `${apiUrl}/guilds/${guildId}/roles`, 'POST', callback);
+  }
+
+  deleteRole(guildId, roleId, callback = () => {}) {
+    this.sendRequest('', `${apiUrl}/guilds/${guildId}/roles/${roleId}`, 'DELETE', callback);
+  }
 }
 
 module.exports = Requests;

@@ -25,3 +25,13 @@ removePermissions(permissions): undefined
 ```javascript
 role.removePermission(['ADMINISTRATOR', 'SEND_MESSAGES']);
 ```
+
+delete(callback): 204 no response
+
+```javascript
+role.removePermission((err) => {
+  if (err) {
+    console.log(err);
+  }
+});
+```

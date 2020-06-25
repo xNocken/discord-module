@@ -23,7 +23,7 @@ class Message {
   constructor(message) {
     this.author = globals.users[message.author.id];
     this.embeds = message.embeds;
-    this.nonce = message.none;
+    this.nonce = message.nonce;
     this.content = message.content;
     this.channel = globals.channels[message.channel_id]
       || globals.privateChannels[message.channel_id];

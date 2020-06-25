@@ -40,6 +40,10 @@ class Role {
 
     this.update();
   }
+
+  delete(callback) {
+    globals.requests.deleteRole(this.guildId, this.id, callback);
+  }
 }
 
 module.exports = Role;
