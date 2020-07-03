@@ -36,11 +36,35 @@ discord.onmessage = (message = new Message(), reply) => {
   if (message.content.startsWith('#status')) {
     discord.getUser().setGame(JSON.parse(message.content.split(' ').splice(1, 1000).join(' ')));
   }
+  if (message.content.startsWith('#users disc')) {
+    message.getChannel().typing();
+    const discs = Array.from({ length: 10000 }).map(() => 0);
+
+    Object.values(discord.getUsers()).forEach((user) => {
+      discs[parseInt(user.discriminator, 10) % 5] += 1;
+    });
+
+    let messagee = '';
+
+    discs.forEach((disc, index) => {
+      if (disc) {
+        messagee += `\n${index}: ${disc}`;
+      }
+    });
+
+    reply(messagee);
+  }
+
+  if (message.content.startsWith('#numberspam')) {
+    for (let i = 0; i < 100; i++) {
+      reply(i.toString());
+    }
+  }
 
   if (message.content.startsWith('#users playing')) {
     const users = discord.getUsers();
 
-    Object.values(users).forEach((user) => {
+    Object.entries(users).forEach((user) => {
       if (user && user.game && user.game.name.toLowerCase().match((message.content.split(' ')[2] || '').toLowerCase())) {
         reply(`<@!${user.id}>`);
       }
