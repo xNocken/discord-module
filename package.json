@@ -23,5 +23,6 @@
   "bugs": {
     "url": "https://github.com/xNocken/discord-module/issues"
   },
-  "homepage": "https://github.com/xNocken/discord-module#readme"
+  "homepage": "https://github.com/xNocken/discord-module#readme",
+  "keywords": ["discord", "libary", "api", "bot", "discordapp", "client"]
 }
