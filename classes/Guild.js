@@ -2,6 +2,7 @@ const globals = require('../src/globals');
 const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
+const Message = require('./Message');
 
 class Guild {
   constructor(guild) {
@@ -43,19 +44,21 @@ class Guild {
       }
     });
 
-    guild.members.forEach((member) => {
-      if (!globals.users[member.user.id]) {
-        const user = new User(member.user);
+    if (guild.members) {
+      guild.members.forEach((member) => {
+        if (!globals.users[member.user.id]) {
+          const user = new User(member.user);
 
-        globals.users[member.user.id] = user;
-      }
+          globals.users[member.user.id] = user;
+        }
 
-      this.members[member.user.id] = {
-        ...member,
-        user: globals.users[member.user.id],
-        roles: member.roles.map((role) => this.roles[role]),
-      };
-    });
+        this.members[member.user.id] = {
+          ...member,
+          user: globals.users[member.user.id],
+          roles: member.roles.map((role) => this.roles[role]),
+        };
+      });
+    }
 
     guild.channels.forEach((channel) => {
       globals.channels[channel.id] = new Channel(channel, this.id);

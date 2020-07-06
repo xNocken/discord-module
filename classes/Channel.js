@@ -92,7 +92,7 @@ class Channel {
 
         setTimeout(() => {
           send(this.messageQueue.splice(0, 1)[0]);
-        }, response.retry_after || 0);
+        }, (response.retry_after || 0) + 850);
       };
 
       if (typeof message.message === 'object') {
