@@ -5,6 +5,7 @@ const Guild = require('../classes/Guild');
 const Message = require('../classes/Message');
 const Channel = require('../classes/Channel');
 const PrivateChannel = require('../classes/PrivateChannel');
+const User = require('../classes/User');
 
 const createGuild = (response) => {
   if (response.unavailable) {
@@ -55,6 +56,14 @@ module.exports = (e) => {
   if (response.t === 'GUILD_ROLE_UPDATE' || response.t === 'GUILD_ROLE_CREATE') {
     globals.roles[response.d.role.id] = new Role(response.d.role, response.d.guild_id);
     globals.guilds[response.d.guild_id].roles[response.d.role.id] = globals.roles[response.d.role.id];
+  }
+
+  if (response.t === 'GUILD_MEMBER_ADD') {
+    globals.users[response.d.user.id] = new User(response.d.user);
+    globals.guilds[response.d.guild_id].members[response.d.user.id] = {
+      ...response.d,
+      user: globals.users[response.d.user.id],
+    };
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {

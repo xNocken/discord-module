@@ -107,6 +107,10 @@ class Channel {
     send(this.messageQueue.splice(0, 1)[0]);
   }
 
+  emptyQueue() {
+    this.messageQueue = [];
+  }
+
   createInvite(options, callback) {
     const perms = this.getPermissionOverwrite(
       globals.guilds[this.guildId].getUserById(globals.user.id),

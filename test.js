@@ -1,6 +1,7 @@
 const Discord = require('./index');
 const token = require('./token');
-const Message = require('./classes/Message');
+
+const { Message } = Discord;
 
 const discord = new Discord({
   token,
@@ -65,7 +66,7 @@ discord.onmessage = (message = new Message(), reply) => {
     const users = discord.getUsers();
 
     Object.entries(users).forEach((user) => {
-      if (user && user.game && user.game.name.toLowerCase().match((message.content.split(' ')[2] || '').toLowerCase())) {
+      if (user && user.game && user.game.name.toLowerCase().match((message.content.split(' ')[2].toLowerCase()))) {
         reply(`<@!${user.id}>`);
       }
     });
