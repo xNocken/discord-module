@@ -108,7 +108,7 @@ class Channel {
   }
 
   emptyQueue() {
-    this.messageQueue = [];
+    this.messageQueue = [this.messageQueue[0]];
   }
 
   createInvite(options, callback) {

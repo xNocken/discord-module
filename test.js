@@ -37,6 +37,7 @@ discord.onmessage = (message = new Message(), reply) => {
   if (message.content.startsWith('#status')) {
     discord.getUser().setGame(JSON.parse(message.content.split(' ').splice(1, 1000).join(' ')));
   }
+
   if (message.content.startsWith('#users disc')) {
     message.getChannel().typing();
     const discs = Array.from({ length: 10000 }).map(() => 0);
