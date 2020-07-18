@@ -6,7 +6,7 @@ const URL_REGEX = /https?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+
 const METHOD_REGEX = /(GET|PATCH|POST|PUT|DELETE)/gi;
 
 const apiVersion = 6;
-const apiUrl = `https://discordapp.com/api/v${apiVersion}`;
+const apiUrl = `https://discord.com/api/v${apiVersion}`;
 const profileUrl = `${apiUrl}/users/@me`;
 
 class Requests {
