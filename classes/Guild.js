@@ -2,7 +2,6 @@ const globals = require('../src/globals');
 const User = require('./User');
 const Role = require('./Role');
 const Channel = require('./Channel');
-const Message = require('./Message');
 
 class Guild {
   constructor(guild) {

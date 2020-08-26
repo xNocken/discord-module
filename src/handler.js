@@ -39,8 +39,15 @@ module.exports = (e) => {
     globals.user = globals.users[response.d.user.id];
   }
 
-  if (response.t === 'GUILD_CREATE' || response.t === 'GUILD_UPDATE') {
+  if (response.t === 'GUILD_CREATE') {
     createGuild(response.d);
+  }
+
+  if (response.t === 'GUILD_UPDATE') {
+    Object.entries(response.d).forEach((data) => {
+      // eslint-disable-next-line prefer-destructuring
+      globals.guilds[response.d.id][data[0]] = data[1];
+    });
   }
 
   if (response.t === 'CHANNEL_CREATE' || response.t === 'CHANNEL_UPDATE') {

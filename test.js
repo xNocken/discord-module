@@ -26,8 +26,7 @@ discord.onmessage = (message = new Message(), reply) => {
 
   args.splice(0, 1);
   if (message.content === '#debug log') {
-    reply(JSON.stringify(discord.getGlobals().users));
-    console.log(JSON.stringify(discord.getGlobals().users).length);
+    console.log(discord.getGlobals());
   }
 
   if (message.content === '#close') {
