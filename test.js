@@ -86,6 +86,10 @@ discord.onmessage = (message = new Message(), reply) => {
     message.delete();
   }
 
+  if (message.content.startsWith('#image')) {
+    reply('It works. Trust me.');
+  }
+
   if (message.content.startsWith('#invite')) {
     discord.getChannelById(args[0]).createInvite({}, (invite) => {
       if (invite === 7) {

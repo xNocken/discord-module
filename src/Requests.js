@@ -1,6 +1,5 @@
 const image2base64 = require('image-to-base64');
 const request = require('request');
-const globals = require('./globals');
 
 const URL_REGEX = /https?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi;
 const METHOD_REGEX = /(GET|PATCH|POST|PUT|DELETE)/gi;
@@ -19,14 +18,10 @@ class Requests {
       throw new TypeError('Invalid/No URL or method provided');
     }
 
-    let headers = {};
-
-    if (globals.user) {
-      headers = {
-        authorization: (globals.user.bot ? 'Bot ' : '') + this.key,
-        'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
-      };
-    }
+    const headers = {
+      authorization: `Bot ${this.key}`,
+      'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+    };
 
     if (body) {
       headers['Content-Type'] = 'application/json';
@@ -152,6 +147,32 @@ class Requests {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/channels/${channelId}/messages`, 'POST', callback);
   }
 
+  sendAttachment(channelId = '', content = '', attachment = null, callback = () => { }) {
+    if (!channelId || content === undefined || typeof channelId !== 'string') {
+      throw new TypeError('Invalid/No channelId or content provided');
+    }
+
+    console.log(attachment);
+
+    const formData = {
+      content: content.toString(),
+      file: attachment,
+    };
+
+    const headers = {
+      authorization: `Bot ${this.key}`,
+      'user-agent': 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+    };
+
+    const requestSettings = {
+      url: encodeURI(`${apiUrl}/channels/${channelId}/messages`),
+      headers,
+      formData,
+    };
+
+    request.post(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR || null), err));
+  }
+
   sendMessageBody(channelId = '', body = {}, callback = () => { }) {
     if (!channelId || body === undefined || typeof channelId !== 'string') {
       throw new TypeError('Invalid/No channelId or content provided');
@@ -270,11 +291,11 @@ class Requests {
     this.sendRequest(JSON.stringify(roleSettings), `${apiUrl}/guilds/${guildId}/roles/${roleId}`, 'PATCH', callback);
   }
 
-  createRole(body, guildId, callback = () => {}) {
+  createRole(body, guildId, callback = () => { }) {
     this.sendRequest(JSON.stringify(body), `${apiUrl}/guilds/${guildId}/roles`, 'POST', callback);
   }
 
-  deleteRole(guildId, roleId, callback = () => {}) {
+  deleteRole(guildId, roleId, callback = () => { }) {
     this.sendRequest('', `${apiUrl}/guilds/${guildId}/roles/${roleId}`, 'DELETE', callback);
   }
 }

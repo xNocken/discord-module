@@ -97,6 +97,8 @@ class Channel {
 
       if (typeof message.message === 'object') {
         await globals.requests.sendEmbed(this.id, message.message, message.tts, callback);
+      } else if (message.attachment) {
+        await globals.requests.sendAttachment(this.id, message.message, message.attachment, callback);
       } else if (message.message) {
         await globals.requests.sendMessage(this.id, message.message, message.tts, callback);
       } else {
@@ -124,7 +126,7 @@ class Channel {
     globals.requests.createInvite(this.id, options, callback);
   }
 
-  sendMessage(message, tts = false, callback = () => { }) {
+  sendMessage(message, tts = false, attachment = null, callback = () => { }) {
     const perms = this.getPermissionOverwrite(
       globals.guilds[this.guildId].getUserById(globals.user.id),
     );
@@ -144,13 +146,24 @@ class Channel {
       return;
     }
 
+    console.log(attachment);
+
     if (typeof message === 'object') {
-      this.messageQueue.push({ message, callback, tts });
+      this.messageQueue.push({
+        message,
+        callback,
+        tts,
+      });
     } else {
       const messageSplit = message.split('');
 
       do {
-        this.messageQueue.push({ message: messageSplit.splice(0, 1999).join('').replace(/@everyone/g, '@3veryone'), callback, tts });
+        this.messageQueue.push({
+          message: messageSplit.splice(0, 1999).join(''),
+          callback,
+          tts,
+          attachment,
+        });
       } while (messageSplit.length > 1);
     }
 
