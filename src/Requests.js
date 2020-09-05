@@ -152,8 +152,6 @@ class Requests {
       throw new TypeError('Invalid/No channelId or content provided');
     }
 
-    console.log(attachment);
-
     const formData = {
       content: content.toString(),
       file: attachment,

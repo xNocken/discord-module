@@ -146,8 +146,6 @@ class Channel {
       return;
     }
 
-    console.log(attachment);
-
     if (typeof message === 'object') {
       this.messageQueue.push({
         message,
