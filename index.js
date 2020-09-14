@@ -95,7 +95,8 @@ class Discord {
     this.heartbeatInteval = setInterval(() => {
       if ((new Date()).getTime() - this.lastHeartbeat > ms) {
         this.lastHeartbeat = (new Date()).getTime();
-        if (this.gateway.readyState === WebSocket.OPEN) {
+
+        if (this.gateway && this.gateway.readyState === WebSocket.OPEN) {
           this.gateway.send(`{"op":1,"d":${this.seq}}`);
         }
       }
