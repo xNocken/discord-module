@@ -79,7 +79,7 @@ if (guild.userHasRole('713465139377995867', '704128785922129970')) {
 }
 ```
 
-userIsAdmin(userId): Boolean
+userIsAdmin(userId): Boolean || Throws ReferenceError
 
 ```javascript
   if (guild.userIdAdmin('713465139377995867')) {
@@ -87,7 +87,7 @@ userIsAdmin(userId): Boolean
   }
 ```
 
-userIsOwner(userId): Boolean
+userIsOwner(userId): Boolean || Throws ReferenceError
 
 ```javascript
   if (guild.userIdOwner('713465139377995867')) {
@@ -95,7 +95,7 @@ userIsOwner(userId): Boolean
   }
 ```
 
-userHasPermissions(userId, permissions): Boolean
+userHasPermissions(userId, permissions): Boolean || Throws ReferenceError
 
 ```javascript
   if (guild.userHasPermissions('713465139377995867', ['VIEW_CHANNEL', 'SEND_MESSAGES'])) {

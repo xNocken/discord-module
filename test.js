@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const Discord = require('./index');
 const token = require('./token');
 
@@ -8,16 +10,6 @@ const discord = new Discord({
 });
 
 discord.onmessage = (message = new Message(), reply) => {
-  if (message.getChannel().guildId === '530776772883775489') {
-    return;
-  }
-  if (message.getChannel().guildId === '661502726588334090') {
-    return;
-  }
-  if (message.getChannel().guildId === '701463031644946483') {
-    return;
-  }
-
   if (!message.author || message.author.bot) {
     return;
   }
@@ -31,6 +23,10 @@ discord.onmessage = (message = new Message(), reply) => {
 
   if (message.content === '#close') {
     discord.getGlobals().discord.gateway.close();
+  }
+
+  if (message.content === '#empty') {
+    reply('', message.channel.id, console.log);
   }
 
   if (message.content.startsWith('#status')) {
@@ -57,7 +53,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 
   if (message.content.startsWith('#numberspam')) {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i += 1) {
       reply(i.toString());
     }
   }
@@ -79,7 +75,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 
   if (message.content.startsWith('#kick')) {
-    discord.getGuildById(message.guild_id).kickUser('715863502417559630');
+    discord.getGuildById(message.channel.guildId).kickUser('4452', console.log);
   }
 
   if (message.content.startsWith('#deleteme')) {
@@ -87,7 +83,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 
   if (message.content.startsWith('#image')) {
-    reply('It works. Trust me.');
+    message.getChannel().sendMessage('', false, fs.createReadStream('testimage.png'), console.log);
   }
 
   if (message.content.startsWith('#invite')) {
@@ -114,7 +110,7 @@ discord.onmessage = (message = new Message(), reply) => {
 
   if (message.content.startsWith('#addrole')) {
     args.splice(0, 1)[0].match(/(\d{18})/);
-    discord.getGuildById(message.channel.guildId).userAddRole(RegExp.$1, args.map((role) => role.match(/\d{18}/)[0]), console.log);
+    discord.getGuildById(message.channel.guildId).userAddRoles(RegExp.$1, args.map((role) => role.match(/\d{18}/)[0]), console.log);
   }
 
   if (message.content.startsWith('#privatechannelid')) {
@@ -124,7 +120,7 @@ discord.onmessage = (message = new Message(), reply) => {
 
   if (message.content.startsWith('#removerole')) {
     args.splice(0, 1)[0].match(/(\d{18})/);
-    discord.getGuildById(message.channel.guildId).userRemoveRole(RegExp.$1, args.map((role) => role.match(/\d{18}/)[0]), console.log);
+    discord.getGuildById(message.channel.guildId).userRemoveRoles(RegExp.$1, args.map((role) => role.match(/\d{18}/)[0]), console.log);
   }
 
   if (message.content.startsWith('#typing')) {
@@ -148,7 +144,11 @@ discord.onmessage = (message = new Message(), reply) => {
 
   if (message.content.startsWith('#edit')) {
     message.getChannel().getMessage(args[0], (messag) => {
-      messag.editMessage(args.splice(1, 1000).join(' '));
+      if (!messag.code) {
+        messag.editMessage(args.splice(1, 1000).join(' '), console.log);
+      } else {
+        console.log(messag);
+      }
     });
   }
 
@@ -159,7 +159,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 
   if (message.content.startsWith('#messages')) {
-    discord.getGlobals().channels['715981804196069477'].getMessages(10, null, (messages) => {
+    message.getChannel().getMessages(10, null, (messages) => {
       if (typeof messages === 'object') {
         messages.forEach((messag) => {
           reply(`${messag.author.username}: ${messag.content}`);

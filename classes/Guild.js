@@ -179,6 +179,7 @@ class Guild {
 
     if (!userObj) {
       callback(false);
+      return;
     }
 
     globals.requests.setRoles(this.id, userId, [

@@ -31,11 +31,15 @@ class PrivateChannel {
 
     this.isDraining = true;
     const send = async (message) => {
-      await globals.requests.sendMessage(this.id, message.message, message.tts, (response) => {
-        if (response.retry_after) {
+      const callback = (response, err) => {
+        if (err) {
+          message.callback(err);
+        } else if (response.retry_after) {
           this.messageQueue.unshift(message);
-        } else {
+        } else if (!response.message) {
           message.callback(new Message(response));
+        } else {
+          message.callback(response);
         }
 
         if (!this.messageQueue.length) {
@@ -44,16 +48,28 @@ class PrivateChannel {
         }
 
         setTimeout(() => {
-          send(this.messageQueue.splice(0, 1)[0]);
-        }, response.retry_after || 0);
-      });
+          send(this.messageQueue.shift());
+        }, (response.retry_after || 0) + 850);
+      };
+
+      if (typeof message.message === 'object') {
+        await globals.requests.sendEmbed(this.id, message.message, message.tts, callback);
+      } else if (message.attachment !== null) {
+        await globals.requests.sendAttachment(this.id, message.message, message.attachment, callback);
+      } else if (message.message !== undefined) {
+        await globals.requests.sendMessage(this.id, message.message, message.tts, callback);
+      } else if (message.body) {
+        await globals.requests.sendMessageBody(this.id, message.body, callback);
+      } else {
+        message.callback({ error: true, message: 'Invalid message' });
+      }
     };
 
-    send(this.messageQueue.splice(0, 1)[0]);
+    send(this.messageQueue.shift());
   }
 
-  sendMessage(message, tts = false, callback = () => {}) {
-    if (message.length < 1 || message.length > 2000) {
+  sendMessage(message, tts = false, attachment = null, callback = () => { }) {
+    if ((message.length < 1 || message.length > 2000) && !attachment) {
       callback(1);
       return;
     }
@@ -64,7 +80,25 @@ class PrivateChannel {
       return;
     }
 
-    this.messageQueue.push({ message, callback, tts });
+    if (typeof message === 'object') {
+      this.messageQueue.push({
+        message,
+        callback,
+        tts,
+      });
+    } else {
+      const messageSplit = message.split('');
+
+      do {
+        this.messageQueue.push({
+          message: messageSplit.splice(0, 1999).join(''),
+          callback,
+          tts,
+          attachment,
+        });
+      } while (messageSplit.length > 1);
+    }
+
     this.drainQueue();
   }
 
@@ -76,7 +110,7 @@ class PrivateChannel {
     });
   }
 
-  delete(callback = () => {}) {
+  delete(callback = () => { }) {
     globals.requests.deleteChannel(this.id, callback);
   }
 }

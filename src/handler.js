@@ -61,8 +61,11 @@ module.exports = (e) => {
   }
 
   if (response.t === 'GUILD_ROLE_UPDATE' || response.t === 'GUILD_ROLE_CREATE') {
-    globals.roles[response.d.role.id] = new Role(response.d.role, response.d.guild_id);
-    globals.guilds[response.d.guild_id].roles[response.d.role.id] = globals.roles[response.d.role.id];
+    const roleId = response.d.role.id;
+    const guildId = response.d.guild_id;
+
+    globals.roles[roleId] = new Role(response.d.role, guildId);
+    globals.guilds[guildId].roles[roleId] = globals.roles[roleId];
   }
 
   if (response.t === 'GUILD_MEMBER_ADD') {
@@ -74,12 +77,16 @@ module.exports = (e) => {
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {
-    globals.guilds[response.d.guild_id].updateUser(response.d);
+    const user = globals.guilds[response.d.guild_id];
+    if (user) {
+      user.updateUser(response.d);
+    }
   }
 
   if (response.t === 'PRESENCE_UPDATE') {
-    if (globals.users[response.d.user.id]) {
-      globals.users[response.d.user.id].setPresence(response.d);
+    const user = globals.users[response.d.user.id];
+    if (user) {
+      user.setPresence(response.d);
     }
   }
 
@@ -91,7 +98,7 @@ module.exports = (e) => {
         channel = globals.privateChannels[channelId || response.d.channel_id];
       }
 
-      channel.sendMessage(message, false, callback);
+      channel.sendMessage(message, false, null, callback);
     };
 
     if (globals.discord.onmessage) {

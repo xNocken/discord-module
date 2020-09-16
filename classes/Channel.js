@@ -46,7 +46,10 @@ class Channel {
       throw Error('Invalid user given');
     }
 
-    if (parentServer.userIsAdmin(realMember.user.id) || parentServer.userIsOwner(realMember.user.id)) {
+    if (
+      parentServer.userIsAdmin(realMember.user.id)
+      || parentServer.userIsOwner(realMember.user.id)
+    ) {
       return new Permissions(Permissions.allPermissions);
     }
 
@@ -78,11 +81,15 @@ class Channel {
 
     this.isDraining = true;
     const send = async (message) => {
-      const callback = (response) => {
-        if (response.retry_after) {
+      const callback = (response, err) => {
+        if (err) {
+          message.callback(err);
+        } else if (response.retry_after) {
           this.messageQueue.unshift(message);
-        } else {
+        } else if (!response.message) {
           message.callback(new Message(response));
+        } else {
+          message.callback(response);
         }
 
         if (!this.messageQueue.length) {
@@ -91,22 +98,24 @@ class Channel {
         }
 
         setTimeout(() => {
-          send(this.messageQueue.splice(0, 1)[0]);
+          send(this.messageQueue.shift());
         }, (response.retry_after || 0) + 850);
       };
 
       if (typeof message.message === 'object') {
         await globals.requests.sendEmbed(this.id, message.message, message.tts, callback);
-      } else if (message.attachment) {
+      } else if (message.attachment !== null) {
         await globals.requests.sendAttachment(this.id, message.message, message.attachment, callback);
-      } else if (message.message) {
+      } else if (message.message !== undefined) {
         await globals.requests.sendMessage(this.id, message.message, message.tts, callback);
-      } else {
+      } else if (message.body) {
         await globals.requests.sendMessageBody(this.id, message.body, callback);
+      } else {
+        message.callback({ error: true, message: 'Invalid message' });
       }
     };
 
-    send(this.messageQueue.splice(0, 1)[0]);
+    send(this.messageQueue.shift());
   }
 
   emptyQueue() {
@@ -218,7 +227,11 @@ class Channel {
     }
 
     globals.requests.getMessage(this.id, messageId, (message) => {
-      callback(new Message(message));
+      if (message.id) {
+        callback(new Message(message));
+      } else {
+        callback(message);
+      }
     });
   }
 
@@ -229,6 +242,7 @@ class Channel {
 
     if (!perms.MANAGE_CHANNELS) {
       callback(7);
+
       return;
     }
 
@@ -241,7 +255,11 @@ class Channel {
     this.name = name;
 
     globals.requests.updateChannel(this.id, { name }, (newChannel) => {
-      callback(new Channel(newChannel));
+      if (newChannel.id) {
+        callback(new Channel(newChannel));
+      } else {
+        callback(newChannel);
+      }
     });
   }
 

@@ -10,7 +10,7 @@
 
 ## Methods
 
-sendMessage(content, textToSpeech, callback): [Message](./message.md)
+sendMessage(content, textToSpeech, attachment, callback): [Message](./message.md)
 
 ```javascript
 message.getChannel().sendMessage('Content', false, (message) => {

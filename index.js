@@ -11,9 +11,7 @@ let lastKey = 'noargs';
 process.args = { noargs: [] };
 process.argv.forEach((arg) => {
   if (arg.startsWith('--')) {
-    let _;
-    [_, lastKey] = arg.split('--');
-    _.toString();
+    [, lastKey] = arg.split('--');
     process.args[lastKey] = [];
   } else {
     process.args[lastKey].push(arg);
@@ -73,7 +71,7 @@ class Discord {
             d: {
               properties: {
                 $os: process.platform,
-                $browser: process.args.useragent ? process.args.useragent[0] : 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
+                $browser: 'discord-module (https://www.npmjs.com/package/discord-module, 2.0)',
                 $device: 'discord-module',
               },
               ...this.config,

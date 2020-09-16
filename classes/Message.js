@@ -75,7 +75,11 @@ class Message {
     const newFlags = this.flags.getFlagNumber();
 
     globals.requests.patchMessage(this.channel.id, this.id, { flags: newFlags }, (message) => {
-      callback(new Message(message));
+      if (message.id) {
+        callback(new Message(message));
+      } else {
+        callback(message);
+      }
     });
   }
 
@@ -86,7 +90,11 @@ class Message {
     }
 
     globals.requests.patchMessage(this.channel.id, this.id, { content: message }, (response) => {
-      callback(new Message(response));
+      if (response.id) {
+        callback(new Message(response));
+      } else {
+        callback(response);
+      }
     });
   }
 

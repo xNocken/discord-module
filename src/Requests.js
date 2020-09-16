@@ -34,6 +34,10 @@ class Requests {
       body,
     };
 
+    if (process.debug) {
+      console.log(method, url, body);
+    }
+
     request(requestSettings, (err, res, bodyR) => callback(JSON.parse(bodyR || null), err));
   }
 
