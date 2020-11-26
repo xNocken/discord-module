@@ -171,6 +171,7 @@ discord.onmessage = (message = new Message(), reply) => {
   }
 };
 
+discord.onReady = (nice) => console.log(`Ready as ${nice.user.username}#${nice.user.discriminator} (${nice.user.id})`);
 discord.onDisconnect = (close) => { console.log('Disconnect', close); };
 discord.onResumed = () => { console.log('Resumed'); };
 discord.onSessionInvalid = () => { console.log('Invalid session. Setting up new connection.'); };

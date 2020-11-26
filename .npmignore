@@ -1,0 +1,11 @@
+.editorconfig
+.eslintrc.js
+docs/*
+LICENSE
+node_modules
+readme.md
+start.js
+test.js
+testimage.png
+token.js
+token.js.example

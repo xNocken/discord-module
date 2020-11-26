@@ -26,6 +26,10 @@ module.exports = (e) => {
   if (response.t === 'READY') {
     discord.sessionId = response.d.session_id;
 
+    if (discord.onReady) {
+      discord.onReady(response.d);
+    }
+
     globals.users[response.d.user.id] = new Me(response.d.user);
 
     response.d.guilds.forEach((guild) => {
@@ -45,8 +49,7 @@ module.exports = (e) => {
 
   if (response.t === 'GUILD_UPDATE') {
     Object.entries(response.d).forEach((data) => {
-      // eslint-disable-next-line prefer-destructuring
-      globals.guilds[response.d.id][data[0]] = data[1];
+      [, globals.guilds[response.d.id][data[0]]] = data;
     });
   }
 
@@ -77,14 +80,16 @@ module.exports = (e) => {
   }
 
   if (response.t === 'GUILD_MEMBER_UPDATE') {
-    const user = globals.guilds[response.d.guild_id];
-    if (user) {
-      user.updateUser(response.d);
+    const server = globals.guilds[response.d.guild_id];
+
+    if (server) {
+      server.updateUser(response.d);
     }
   }
 
   if (response.t === 'PRESENCE_UPDATE') {
     const user = globals.users[response.d.user.id];
+
     if (user) {
       user.setPresence(response.d);
     }

@@ -1,5 +1,6 @@
 const globals = require('../src/globals');
 const MessageFlags = require('./MessageFlags');
+const User = require('./User');
 
 const messageTypes = [
   'DEFAULT',
@@ -21,6 +22,11 @@ const messageTypes = [
 
 class Message {
   constructor(message) {
+    if (!globals.users[message.author.id]) {
+      const user = new User(message.author);
+
+      globals.users[message.author.id] = user;
+    }
     this.author = globals.users[message.author.id];
     this.embeds = message.embeds;
     this.nonce = message.nonce;
