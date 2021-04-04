@@ -169,6 +169,10 @@ discord.onmessage = (message = new Message(), reply) => {
       }
     });
   }
+
+  if (message.content.startsWith('#referenced')) {
+    reply(JSON.stringify(message.referencedMessage));
+  }
 };
 
 discord.onReady = (nice) => console.log(`Ready as ${nice.user.username}#${nice.user.discriminator} (${nice.user.id})`);

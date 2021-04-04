@@ -11,16 +11,60 @@ const maxBitratePerLevel = [
 
 class Channel {
   constructor(channel, guildId) {
+    /**
+     * channel id
+     * @type {string}
+     */
     this.id = channel.id;
+    /**
+     * Id of the last send message
+     * @type {string}
+     */
     this.lastMessageId = channel.last_message_id;
+    /**
+     * Name of the channel
+     * @type {string}
+     */
     this.name = channel.name;
+    /**
+     * Category id
+     * @type {string}
+     */
     this.parentId = channel.parent_id;
+    /**
+     * Position
+     * @type {number}
+     */
     this.position = channel.position;
+    /**
+     * rate limit per user
+     * @type {number}
+     */
     this.rateLimitPerUser = channel.rate_limit_per_user;
+    /**
+     * Topic about the channel
+     * @type {string}
+     */
     this.topic = channel.topic;
+    /**
+     * channel type
+     * @type {number}
+     */
     this.type = channel.type;
+    /**
+     * Permission overwrites
+     * @type {Array<mixed>}
+     */
     this.permissionOverwrites = [];
+    /**
+     * Parent Guild id
+     * @type {string}
+     */
     this.guildId = guildId;
+    /**
+     * Messages to send
+     * @type {Array<mixed>}
+     */
     this.messageQueue = [];
 
     channel.permission_overwrites.forEach((permissionOverwrite) => {

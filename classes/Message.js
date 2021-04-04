@@ -48,6 +48,7 @@ class Message {
     this.application = message.application;
     this.activity = message.activity;
     this.pinned = message.pinned;
+    this.referencedMessage = message.referenced_message;
   }
 
   react(emoji, callback = () => { }) {
